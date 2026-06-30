@@ -1,0 +1,26 @@
+[
+    {
+        "id": "system",
+        "symbolName": "circle.lefthalf.filled",
+        "names": {
+            "de": "System",
+            "en": "System"
+        }
+    },
+    {
+        "id": "light",
+        "symbolName": "sun.max.fill",
+        "names": {
+            "de": "Hell",
+            "en": "Light"
+        }
+    },
+    {
+        "id": "dark",
+        "symbolName": "moon.fill",
+        "names": {
+            "de": "Dunkel",
+            "en": "Dark"
+        }
+    }
+]

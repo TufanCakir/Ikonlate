@@ -1,0 +1,12 @@
+[
+    {
+        "id": "de",
+        "name": "Deutsch",
+        "symbolName": "globe.europe.africa.fill"
+    },
+    {
+        "id": "en",
+        "name": "English",
+        "symbolName": "globe.americas.fill"
+    }
+]

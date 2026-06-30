@@ -1,0 +1,169 @@
+{
+    "de": {
+        "tab.translate": "Übersetzen",
+        "tab.camera": "Kamera",
+        "tab.settings": "Einstellungen",
+        "search.prompt": "Text suchen oder übersetzen",
+        "search.suggestion.useInTranslator": "Im Übersetzer verwenden",
+        "onboarding.translate.title": "Übersetzen ohne Umwege",
+        "onboarding.translate.message":
+            "Wähle Ausgangs- und Zielsprache, gib Text ein und erhalte direkt eine auswählbare Übersetzung.",
+        "onboarding.camera.title": "Text per Kamera erfassen",
+        "onboarding.camera.message":
+            "Fotografiere gedruckten Text, lasse ihn erkennen und öffne ihn anschließend im Übersetzer.",
+        "onboarding.accessibility.title": "Auf dich abgestimmt",
+        "onboarding.accessibility.message":
+            "Passe Sprache, Theme, Kontrast, Bedienelemente und Bewegung in den Einstellungen an.",
+        "onboarding.button.next": "Weiter",
+        "onboarding.button.start": "Loslegen",
+        "translator.importSearch": "Suchtext übernehmen",
+        "translator.importSearchHint":
+            "Übernimmt den Text aus der Suchleiste in das Übersetzungsfeld.",
+        "translator.from": "Von",
+        "translator.to": "Nach",
+        "translator.supportedLanguages": "%d unterstützte Sprachen geladen",
+        "translator.inputTitle": "Text",
+        "translator.inputPlaceholder": "Text eingeben",
+        "translator.inputAccessibilityLabel": "Text zum Übersetzen",
+        "translator.inputAccessibilityHint":
+            "Gib hier den Text ein, der übersetzt werden soll.",
+        "translator.button.idle": "Übersetzen",
+        "translator.button.loading": "Übersetze ...",
+        "translator.buttonHint":
+            "Startet die Übersetzung mit Apples Translation Framework.",
+        "translator.buttonHintSameLanguage":
+            "Wähle zwei unterschiedliche Sprachen aus.",
+        "translator.outputTitle": "Ergebnis",
+        "translator.loading": "Translation wird vorbereitet",
+        "translator.emptyResult": "Deine Übersetzung erscheint hier.",
+        "translator.resultAccessibilityLabel": "Übersetzung",
+        "translator.resultAccessibilityHint":
+            "Der übersetzte Text ist auswählbar.",
+        "translator.error":
+            "Übersetzung fehlgeschlagen. Prüfe Sprache oder Netzwerk für den Modell-Download.",
+        "camera.title": "Kamera",
+        "camera.capture": "Foto aufnehmen",
+        "camera.retake": "Neu aufnehmen",
+        "camera.translate": "Erkannten Text übersetzen",
+        "camera.useInTranslator": "Im Übersetzer öffnen",
+        "camera.placeholder":
+            "Fotografiere Text, damit Vision ihn erkennt und die Translation API ihn übersetzt.",
+        "camera.recognizedTitle": "Erkannter Text",
+        "camera.resultTitle": "Übersetzung",
+        "camera.scanning": "Text wird erkannt",
+        "camera.translating": "Übersetzung läuft",
+        "camera.noCamera": "Auf diesem Gerät ist keine Kamera verfügbar.",
+        "camera.noText": "Kein lesbarer Text im Foto gefunden.",
+        "camera.ocrError": "Texterkennung fehlgeschlagen.",
+        "camera.translationError": "Kamera-Übersetzung fehlgeschlagen.",
+        "camera.permissionHint":
+            "Die App benötigt Kamerazugriff, um Text zu fotografieren.",
+        "settings.title": "Einstellungen",
+        "settings.section.language": "Sprache",
+        "settings.appLanguage": "App-Sprache",
+        "settings.appLanguageHint":
+            "Ändert die Texte der App zwischen Deutsch und Englisch.",
+        "settings.section.theme": "Theme",
+        "settings.appearance": "Darstellung",
+        "settings.appearanceHint":
+            "Legt fest, ob die App dem System folgt oder Light Mode beziehungsweise Dark Mode nutzt.",
+        "settings.section.accessibility": "Barrierefreiheit",
+        "settings.largeControls": "Größere Bedienelemente",
+        "settings.largeControlsHint":
+            "Vergrößert Eingabefelder, Buttons und Ergebnistext im Übersetzer.",
+        "settings.highContrast": "Stärkerer Kontrast",
+        "settings.highContrastHint":
+            "Erhöht die Lesbarkeit von Flächen und Rahmen.",
+        "settings.section.motion": "Bewegung",
+        "settings.reduceAnimations": "Animationen reduzieren",
+        "settings.reduceAnimationsHint":
+            "Reduziert Symbolanimationen und Übergänge in der App.",
+        "settings.section.voiceover": "VoiceOver",
+        "settings.speakResultHint": "Ergebnis-Hinweis",
+        "settings.speakResultHintHint":
+            "Beschreibt dem Screenreader, dass der übersetzte Text auswählbar ist."
+    },
+    "en": {
+        "tab.translate": "Translate",
+        "tab.camera": "Camera",
+        "tab.settings": "Settings",
+        "search.prompt": "Search or translate text",
+        "search.suggestion.useInTranslator": "Use in translator",
+        "onboarding.translate.title": "Translate without detours",
+        "onboarding.translate.message":
+            "Choose source and target languages, enter text, and get a selectable translation right away.",
+        "onboarding.camera.title": "Capture text by camera",
+        "onboarding.camera.message":
+            "Photograph printed text, recognize it, and open it in the translator.",
+        "onboarding.accessibility.title": "Adjusted to you",
+        "onboarding.accessibility.message":
+            "Tune language, theme, contrast, controls, and motion in Settings.",
+        "onboarding.button.next": "Next",
+        "onboarding.button.start": "Get started",
+        "translator.importSearch": "Use search text",
+        "translator.importSearchHint":
+            "Copies the search text into the translation field.",
+        "translator.from": "From",
+        "translator.to": "To",
+        "translator.supportedLanguages": "%d supported languages loaded",
+        "translator.inputTitle": "Text",
+        "translator.inputPlaceholder": "Enter text",
+        "translator.inputAccessibilityLabel": "Text to translate",
+        "translator.inputAccessibilityHint":
+            "Enter the text that should be translated.",
+        "translator.button.idle": "Translate",
+        "translator.button.loading": "Translating ...",
+        "translator.buttonHint":
+            "Starts translation with Apple's Translation framework.",
+        "translator.buttonHintSameLanguage": "Choose two different languages.",
+        "translator.outputTitle": "Result",
+        "translator.loading": "Preparing translation",
+        "translator.emptyResult": "Your translation appears here.",
+        "translator.resultAccessibilityLabel": "Translation",
+        "translator.resultAccessibilityHint":
+            "The translated text is selectable.",
+        "translator.error":
+            "Translation failed. Check the language pair or network for the model download.",
+        "camera.title": "Camera",
+        "camera.capture": "Take photo",
+        "camera.retake": "Retake",
+        "camera.translate": "Translate recognized text",
+        "camera.useInTranslator": "Open in translator",
+        "camera.placeholder":
+            "Take a photo of text so Vision can recognize it and the Translation API can translate it.",
+        "camera.recognizedTitle": "Recognized text",
+        "camera.resultTitle": "Translation",
+        "camera.scanning": "Recognizing text",
+        "camera.translating": "Translating",
+        "camera.noCamera": "No camera is available on this device.",
+        "camera.noText": "No readable text was found in the photo.",
+        "camera.ocrError": "Text recognition failed.",
+        "camera.translationError": "Camera translation failed.",
+        "camera.permissionHint":
+            "The app needs camera access to photograph text.",
+        "settings.title": "Settings",
+        "settings.section.language": "Language",
+        "settings.appLanguage": "App language",
+        "settings.appLanguageHint":
+            "Switches the app text between German and English.",
+        "settings.section.theme": "Theme",
+        "settings.appearance": "Appearance",
+        "settings.appearanceHint":
+            "Sets whether the app follows the system, Light Mode, or Dark Mode.",
+        "settings.section.accessibility": "Accessibility",
+        "settings.largeControls": "Larger controls",
+        "settings.largeControlsHint":
+            "Enlarges input fields, buttons, and result text in the translator.",
+        "settings.highContrast": "Higher contrast",
+        "settings.highContrastHint":
+            "Improves readability of surfaces and borders.",
+        "settings.section.motion": "Motion",
+        "settings.reduceAnimations": "Reduce animations",
+        "settings.reduceAnimationsHint":
+            "Reduces symbol animations and transitions in the app.",
+        "settings.section.voiceover": "VoiceOver",
+        "settings.speakResultHint": "Result hint",
+        "settings.speakResultHintHint":
+            "Tells the screen reader that translated text is selectable."
+    }
+}
