@@ -8,28 +8,49 @@
 import Foundation
 import SwiftUI
 
+struct AppInfo {
+    
+    let appVersion: String
+    let buildNumber: String
+    let bundleIdentifier: String
+    let iOSVersion: String
+
+    static func current(
+        
+        bundle: Bundle = .main,
+        processInfo: ProcessInfo = .processInfo
+    ) -> AppInfo {
+        
+        AppInfo(
+            appVersion: bundle.infoDictionary?["CFBundleShortVersionString"]
+                as? String ?? "-",
+            buildNumber: bundle.infoDictionary?["CFBundleVersion"] as? String
+                ?? "-",
+            bundleIdentifier: bundle.bundleIdentifier ?? "-",
+            iOSVersion: processInfo.operatingSystemVersionString
+        )
+    }
+}
+
 struct AppCopyStore {
 
     private let values: [String: [String: String]]
 
     init(bundle: Bundle = .main) {
+        
         values = Self.load("AppCopy", from: bundle) ?? [:]
     }
 
     func text(_ key: String, languageCode: String) -> String {
+        
         values[languageCode]?[key] ?? values["en"]?[key] ?? key
-    }
-
-    func formatted(_ key: String, languageCode: String, _ arguments: CVarArg...)
-        -> String
-    {
-        formatted(key, languageCode: languageCode, arguments: arguments)
     }
 
     func formatted(_ key: String, languageCode: String, arguments: [CVarArg])
         -> String
     {
         NSString(
+            
             format: text(key, languageCode: languageCode),
             locale: Locale.current,
             arguments: getVaList(arguments)
@@ -59,6 +80,7 @@ struct AppCopyStore {
 }
 
 struct AppLanguageOption: Identifiable, Hashable {
+
     let id: String
     let name: String
     let symbolName: String
@@ -77,6 +99,7 @@ struct AppLanguageOption: Identifiable, Hashable {
 }
 
 struct ThemeOption: Identifiable, Hashable, Decodable {
+
     let id: String
     let symbolName: String
     let names: [String: String]
@@ -104,6 +127,7 @@ struct ThemeOption: Identifiable, Hashable, Decodable {
     ]
 
     static func load(bundle: Bundle = .main) -> [ThemeOption] {
+
         guard
             let url = bundle.url(
                 forResource: "ThemeOptions",
@@ -123,11 +147,13 @@ struct ThemeOption: Identifiable, Hashable, Decodable {
 }
 
 enum ThemeMode: String, CaseIterable {
+
     case system
     case light
     case dark
 
     var colorScheme: ColorScheme? {
+
         switch self {
         case .system:
             nil
@@ -140,11 +166,13 @@ enum ThemeMode: String, CaseIterable {
 }
 
 struct DefaultLanguageRecord: Decodable {
+
     let id: String
     let name: String
     let symbolName: String
 
     static func load(bundle: Bundle = .main) -> [DefaultLanguageRecord] {
+
         guard
             let url = bundle.url(
                 forResource: "DefaultLanguages",

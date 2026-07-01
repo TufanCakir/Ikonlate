@@ -2,9 +2,8 @@
     "de": {
         "tab.translate": "Übersetzen",
         "tab.camera": "Kamera",
+        "tab.live": "Live",
         "tab.settings": "Einstellungen",
-        "search.prompt": "Text suchen oder übersetzen",
-        "search.suggestion.useInTranslator": "Im Übersetzer verwenden",
         "onboarding.translate.title": "Übersetzen ohne Umwege",
         "onboarding.translate.message":
             "Wähle Ausgangs- und Zielsprache, gib Text ein und erhalte direkt eine auswählbare Übersetzung.",
@@ -27,21 +26,56 @@
         "translator.inputAccessibilityLabel": "Text zum Übersetzen",
         "translator.inputAccessibilityHint":
             "Gib hier den Text ein, der übersetzt werden soll.",
-        "translator.button.idle": "Übersetzen",
-        "translator.button.loading": "Übersetze ...",
-        "translator.buttonHint":
-            "Startet die Übersetzung mit Apples Translation Framework.",
         "translator.buttonHintSameLanguage":
             "Wähle zwei unterschiedliche Sprachen aus.",
+        "translator.offlineDownload.button": "Sprachen offline laden",
+        "translator.offlineDownload.loading": "Download vorbereiten",
+        "translator.offlineDownload.success":
+            "Dieses Sprachpaar ist für die Offline-Nutzung vorbereitet.",
+        "translator.offlineDownload.error":
+            "Offline-Download konnte nicht gestartet werden.",
         "translator.outputTitle": "Ergebnis",
         "translator.loading": "Translation wird vorbereitet",
+        "translator.preparingLanguages":
+            "Sprachen werden geladen oder vorbereitet",
         "translator.emptyResult": "Deine Übersetzung erscheint hier.",
         "translator.resultAccessibilityLabel": "Übersetzung",
         "translator.resultAccessibilityHint":
             "Der übersetzte Text ist auswählbar.",
         "translator.error":
             "Übersetzung fehlgeschlagen. Prüfe Sprache oder Netzwerk für den Modell-Download.",
-        "camera.title": "Kamera",
+        "speech.start": "Diktat starten",
+        "speech.stop": "Diktat stoppen",
+        "speech.speak": "Übersetzung vorlesen",
+        "speech.listening": "Hört zu und übersetzt live",
+        "speech.error.permission":
+            "Spracherkennung wurde nicht erlaubt.",
+        "speech.error.microphone":
+            "Mikrofonzugriff wurde nicht erlaubt.",
+        "speech.error.unavailable":
+            "Spracherkennung ist für diese Sprache gerade nicht verfügbar.",
+        "speech.error.start":
+            "Mikrofon konnte nicht gestartet werden.",
+        "speech.error.inputFormat":
+            "Das Mikrofon liefert gerade kein gültiges Audioformat. Prüfe den Simulator oder teste auf einem echten Gerät.",
+        "speech.error.recognition":
+            "Spracherkennung wurde unterbrochen.",
+        "history.title": "Verlauf",
+        "history.empty": "Noch keine Übersetzungen",
+        "history.emptyFavorites": "Noch keine Favoriten",
+        "history.filter.all": "Alle",
+        "history.filter.favorites": "Favoriten",
+        "history.clear": "Verlauf löschen",
+        "history.favorite.add": "Als Favorit markieren",
+        "history.favorite.remove": "Favorit entfernen",
+        "common.done": "Fertig",
+        "live.title": "Live-Übersetzung",
+        "live.beta": "BETA",
+        "live.personLanguage": "Sprache der Person",
+        "live.yourLanguage": "Deine Sprache",
+        "live.start": "Übersetzung starten",
+        "live.stop": "Übersetzung stoppen",
+        "camera.title": "Kamera-Übersetzung",
         "camera.capture": "Foto aufnehmen",
         "camera.retake": "Neu aufnehmen",
         "camera.translate": "Erkannten Text übersetzen",
@@ -52,12 +86,9 @@
         "camera.resultTitle": "Übersetzung",
         "camera.scanning": "Text wird erkannt",
         "camera.translating": "Übersetzung läuft",
-        "camera.noCamera": "Auf diesem Gerät ist keine Kamera verfügbar.",
         "camera.noText": "Kein lesbarer Text im Foto gefunden.",
         "camera.ocrError": "Texterkennung fehlgeschlagen.",
         "camera.translationError": "Kamera-Übersetzung fehlgeschlagen.",
-        "camera.permissionHint":
-            "Die App benötigt Kamerazugriff, um Text zu fotografieren.",
         "settings.title": "Einstellungen",
         "settings.section.language": "Sprache",
         "settings.appLanguage": "App-Sprache",
@@ -81,14 +112,18 @@
         "settings.section.voiceover": "VoiceOver",
         "settings.speakResultHint": "Ergebnis-Hinweis",
         "settings.speakResultHintHint":
-            "Beschreibt dem Screenreader, dass der übersetzte Text auswählbar ist."
+            "Beschreibt dem Screenreader, dass der übersetzte Text auswählbar ist.",
+        "settings.section.appInfo": "App-Info",
+        "settings.appVersion": "Version",
+        "settings.buildNumber": "Build",
+        "settings.iOSVersion": "iOS-Version",
+        "settings.bundleIdentifier": "Bundle-ID"
     },
     "en": {
         "tab.translate": "Translate",
         "tab.camera": "Camera",
+        "tab.live": "Live",
         "tab.settings": "Settings",
-        "search.prompt": "Search or translate text",
-        "search.suggestion.useInTranslator": "Use in translator",
         "onboarding.translate.title": "Translate without detours",
         "onboarding.translate.message":
             "Choose source and target languages, enter text, and get a selectable translation right away.",
@@ -111,20 +146,54 @@
         "translator.inputAccessibilityLabel": "Text to translate",
         "translator.inputAccessibilityHint":
             "Enter the text that should be translated.",
-        "translator.button.idle": "Translate",
-        "translator.button.loading": "Translating ...",
-        "translator.buttonHint":
-            "Starts translation with Apple's Translation framework.",
         "translator.buttonHintSameLanguage": "Choose two different languages.",
+        "translator.offlineDownload.button": "Download languages offline",
+        "translator.offlineDownload.loading": "Preparing download",
+        "translator.offlineDownload.success":
+            "This language pair is prepared for offline use.",
+        "translator.offlineDownload.error":
+            "Offline download could not be started.",
         "translator.outputTitle": "Result",
         "translator.loading": "Preparing translation",
+        "translator.preparingLanguages": "Loading or preparing languages",
         "translator.emptyResult": "Your translation appears here.",
         "translator.resultAccessibilityLabel": "Translation",
         "translator.resultAccessibilityHint":
             "The translated text is selectable.",
         "translator.error":
             "Translation failed. Check the language pair or network for the model download.",
-        "camera.title": "Camera",
+        "speech.start": "Start dictation",
+        "speech.stop": "Stop dictation",
+        "speech.speak": "Speak translation",
+        "speech.listening": "Listening and translating live",
+        "speech.error.permission":
+            "Speech recognition was not allowed.",
+        "speech.error.microphone":
+            "Microphone access was not allowed.",
+        "speech.error.unavailable":
+            "Speech recognition is not available for this language right now.",
+        "speech.error.start":
+            "The microphone could not be started.",
+        "speech.error.inputFormat":
+            "The microphone is not providing a valid audio format. Check the simulator or test on a real device.",
+        "speech.error.recognition":
+            "Speech recognition was interrupted.",
+        "history.title": "History",
+        "history.empty": "No translations yet",
+        "history.emptyFavorites": "No favorites yet",
+        "history.filter.all": "All",
+        "history.filter.favorites": "Favorites",
+        "history.clear": "Clear history",
+        "history.favorite.add": "Mark as favorite",
+        "history.favorite.remove": "Remove favorite",
+        "common.done": "Done",
+        "live.title": "Live Translation",
+        "live.beta": "BETA",
+        "live.personLanguage": "Person's language",
+        "live.yourLanguage": "Your language",
+        "live.start": "Start translation",
+        "live.stop": "Stop translation",
+        "camera.title": "Camera Translation",
         "camera.capture": "Take photo",
         "camera.retake": "Retake",
         "camera.translate": "Translate recognized text",
@@ -135,12 +204,9 @@
         "camera.resultTitle": "Translation",
         "camera.scanning": "Recognizing text",
         "camera.translating": "Translating",
-        "camera.noCamera": "No camera is available on this device.",
         "camera.noText": "No readable text was found in the photo.",
         "camera.ocrError": "Text recognition failed.",
         "camera.translationError": "Camera translation failed.",
-        "camera.permissionHint":
-            "The app needs camera access to photograph text.",
         "settings.title": "Settings",
         "settings.section.language": "Language",
         "settings.appLanguage": "App language",
@@ -164,6 +230,11 @@
         "settings.section.voiceover": "VoiceOver",
         "settings.speakResultHint": "Result hint",
         "settings.speakResultHintHint":
-            "Tells the screen reader that translated text is selectable."
+            "Tells the screen reader that translated text is selectable.",
+        "settings.section.appInfo": "App info",
+        "settings.appVersion": "Version",
+        "settings.buildNumber": "Build",
+        "settings.iOSVersion": "iOS version",
+        "settings.bundleIdentifier": "Bundle ID"
     }
 }

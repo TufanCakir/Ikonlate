@@ -25,14 +25,19 @@ struct CameraView: View {
     }
 
     var body: some View {
+
         NavigationStack {
+
             ZStack {
+
                 GlassmorphismBackground(
                     highContrast: settings.highContrast,
                     reduceAnimations: settings.reduceAnimations
                 )
 
                 VStack(spacing: 12) {
+
+                    header
                     preview
                     actionRow
                     recognizedSection
@@ -40,7 +45,6 @@ struct CameraView: View {
                 }
                 .padding(16)
             }
-            .navigationTitle(settings.text("camera.title"))
             .navigationBarTitleDisplayMode(.inline)
         }
         .sheet(isPresented: $isShowingCamera) {
@@ -62,8 +66,36 @@ struct CameraView: View {
         }
     }
 
+    private var header: some View {
+
+        HStack(spacing: 8) {
+            Text(settings.text("camera.title"))
+                .font(.title2.bold())
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+                .foregroundStyle(.primary)
+
+            Text(settings.text("live.beta"))
+                .font(.caption.bold())
+                .foregroundStyle(settings.highContrast ? .white : .black)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    settings.highContrast
+                        ? Color.primary.opacity(0.72)
+                        : Color.white.opacity(0.68),
+                    in: Capsule()
+                )
+
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private var preview: some View {
+
         ZStack {
+
             if let image = viewModel.image {
                 Image(uiImage: image)
                     .resizable()
@@ -97,7 +129,9 @@ struct CameraView: View {
     }
 
     private var actionRow: some View {
+
         HStack(spacing: 10) {
+
             Button {
                 isShowingCamera = true
             } label: {
@@ -129,6 +163,7 @@ struct CameraView: View {
     }
 
     private var recognizedSection: some View {
+
         compactTextPanel(
             title: settings.text("camera.recognizedTitle"),
             symbolName: viewModel.isRecognizing
@@ -140,7 +175,9 @@ struct CameraView: View {
     }
 
     private var resultSection: some View {
+
         VStack(alignment: .leading, spacing: 10) {
+
             compactTextPanel(
                 title: settings.text("camera.resultTitle"),
                 symbolName: viewModel.isTranslating
@@ -173,12 +210,14 @@ struct CameraView: View {
     }
 
     private func compactTextPanel(
+
         title: String,
         symbolName: String,
         text: String,
         placeholder: String
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
+
             Label(title, systemImage: symbolName)
                 .font(.headline)
                 .translatorSymbolEffect(
@@ -203,10 +242,13 @@ struct CameraView: View {
 }
 
 struct CameraPicker: UIViewControllerRepresentable {
+
     var onImagePicked: (UIImage) -> Void
+
     @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
+
         let picker = UIImagePickerController()
         picker.sourceType =
             UIImagePickerController.isSourceTypeAvailable(.camera)
@@ -217,11 +259,13 @@ struct CameraPicker: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(
+
         _ uiViewController: UIImagePickerController,
         context: Context
     ) {}
 
     func makeCoordinator() -> Coordinator {
+
         Coordinator(onImagePicked: onImagePicked, dismiss: dismiss)
     }
 
@@ -238,6 +282,7 @@ struct CameraPicker: UIViewControllerRepresentable {
         }
 
         func imagePickerController(
+
             _ picker: UIImagePickerController,
             didFinishPickingMediaWithInfo info: [UIImagePickerController
                 .InfoKey: Any]
@@ -249,6 +294,7 @@ struct CameraPicker: UIViewControllerRepresentable {
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+
             dismiss()
         }
     }

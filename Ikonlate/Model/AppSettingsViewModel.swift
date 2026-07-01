@@ -48,6 +48,7 @@ final class AppSettingsViewModel {
     let copy = AppCopyStore()
     let themeOptions = ThemeOption.load()
     let appLanguages = AppLanguageOption.all
+    let appInfo = AppInfo.current()
 
     private let defaults: UserDefaults
 
@@ -91,6 +92,7 @@ final class AppSettingsViewModel {
 }
 
 private enum Keys {
+
     static let languageCode = "appLanguageCode"
     static let themeMode = "appThemeMode"
     static let reduceAnimations = "accessibilityReduceAnimations"

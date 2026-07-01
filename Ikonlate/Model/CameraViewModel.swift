@@ -50,6 +50,7 @@ final class CameraViewModel {
     }
 
     func triggerTranslation() {
+
         guard hasRecognizedText else { return }
 
         translatedText = ""
@@ -125,6 +126,7 @@ final class CameraViewModel {
 }
 
 extension UIImage {
+
     fileprivate var cgImagePropertyOrientation: CGImagePropertyOrientation {
         switch imageOrientation {
         case .up:

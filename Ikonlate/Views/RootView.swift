@@ -14,7 +14,9 @@ struct RootView: View {
     @State private var searchText = ""
 
     var body: some View {
+
         TabView(selection: $selectedTab) {
+
             Tab(
                 settings.text("tab.translate"),
                 systemImage: "translate",
@@ -31,8 +33,12 @@ struct RootView: View {
                 CameraView(searchText: $searchText, selectedTab: $selectedTab)
             }
 
-            Tab(value: .search, role: .search) {
-                SearchView(searchText: $searchText, selectedTab: $selectedTab)
+            Tab(
+                settings.text("tab.live"),
+                systemImage: "airpods.pro",
+                value: .live
+            ) {
+                LiveTranslationView()
             }
 
             Tab(
@@ -46,7 +52,6 @@ struct RootView: View {
         .environment(settings)
         .preferredColorScheme(settings.preferredColorScheme)
         .tint(settings.colorTint)
-        .tabViewSearchActivation(.searchTabSelection)
         .fullScreenCover(isPresented: onboardingBinding) {
             OnboardingView {
                 settings.hasCompletedOnboarding = true
@@ -57,6 +62,7 @@ struct RootView: View {
     }
 
     private var onboardingBinding: Binding<Bool> {
+
         Binding {
             !settings.hasCompletedOnboarding
         } set: { isPresented in
@@ -68,9 +74,10 @@ struct RootView: View {
 }
 
 enum AppTab: Hashable {
+
     case translate
     case camera
-    case search
+    case live
     case settings
 }
 

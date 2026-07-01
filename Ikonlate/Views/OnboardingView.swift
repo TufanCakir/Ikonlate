@@ -16,6 +16,7 @@ struct OnboardingView: View {
     let onFinish: () -> Void
 
     private var pages: [OnboardingPage] {
+
         [
             OnboardingPage(
                 title: settings.text("onboarding.translate.title"),
@@ -39,6 +40,7 @@ struct OnboardingView: View {
     }
 
     var body: some View {
+
         ZStack {
             GlassmorphismBackground(
                 highContrast: settings.highContrast,
@@ -46,7 +48,9 @@ struct OnboardingView: View {
             )
 
             VStack(spacing: 24) {
+
                 TabView(selection: $selectedPage) {
+
                     ForEach(Array(pages.enumerated()), id: \.element.id) {
                         index,
                         page in
@@ -97,6 +101,7 @@ struct OnboardingView: View {
 }
 
 private struct OnboardingPage: Identifiable {
+
     let id = UUID()
     let title: String
     let message: String
@@ -105,11 +110,15 @@ private struct OnboardingPage: Identifiable {
 }
 
 private struct OnboardingPageView: View {
+
     let page: OnboardingPage
+
     @Environment(AppSettingsViewModel.self) private var settings
 
     var body: some View {
+
         VStack(spacing: 22) {
+
             Spacer(minLength: 24)
 
             Image(systemName: page.symbolName)
@@ -127,6 +136,7 @@ private struct OnboardingPageView: View {
                 .accessibilityHidden(true)
 
             VStack(spacing: 12) {
+
                 Text(page.title)
                     .font(
                         settings.largeControls

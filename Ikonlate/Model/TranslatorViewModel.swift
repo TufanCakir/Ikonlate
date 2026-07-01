@@ -5,6 +5,7 @@
 //  Created by Tufan Cakir on 30.06.26.
 //
 
+import AVFAudio
 import Foundation
 import Observation
 import Translation
@@ -19,15 +20,60 @@ final class TranslatorViewModel {
     var selectedTargetLanguage = LanguageOption.english
     var supportedLanguageOptions = LanguageOption.defaultOptions
     var configuration: TranslationSession.Configuration?
+    var downloadConfiguration: TranslationSession.Configuration?
     var isTranslating = false
+    var isPreparingLanguages = false
+    var isPreparingOfflineLanguages = false
+    var offlineLanguageMessage: String?
     var errorMessage: String?
+    var historyItems: [TranslationRecord]
+    var speechMessageKey: String?
+    var isListening = false
 
     @ObservationIgnored private var liveTranslationTask: Task<Void, Never>?
     @ObservationIgnored private var pendingSourceText = ""
+    @ObservationIgnored private var activeRequestID = 0
+    @ObservationIgnored private let historyStore = TranslatorHistoryStore()
+    @ObservationIgnored private let speechController =
+        SpeechRecognitionController()
+    @ObservationIgnored private let speechSynthesizer = AVSpeechSynthesizer()
+
+    init() {
+        historyItems = historyStore.load()
+    }
 
     var canTranslate: Bool {
         !sourceText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && selectedSourceLanguage != selectedTargetLanguage
+    }
+
+    var canPrepareOfflineLanguages: Bool {
+        selectedSourceLanguage != selectedTargetLanguage
+    }
+
+    var favoriteItems: [TranslationRecord] {
+        historyItems.filter(\.isFavorite)
+    }
+
+    var currentRecord: TranslationRecord? {
+
+        let trimmedSourceText = sourceText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        guard !trimmedSourceText.isEmpty, !translatedText.isEmpty else {
+            return nil
+        }
+
+        return historyItems.first { record in
+            record.sourceText == trimmedSourceText
+                && record.translatedText == translatedText
+                && record.sourceLanguageID == selectedSourceLanguage.id
+                && record.targetLanguageID == selectedTargetLanguage.id
+        }
+    }
+
+    var isCurrentTranslationFavorite: Bool {
+        currentRecord?.isFavorite == true
     }
 
     func importSearchText(_ searchText: String) {
@@ -36,6 +82,7 @@ final class TranslatorViewModel {
     }
 
     func autoImportSearchText(_ searchText: String) {
+
         let trimmedSearchText = searchText.trimmingCharacters(
             in: .whitespacesAndNewlines
         )
@@ -52,6 +99,7 @@ final class TranslatorViewModel {
         }
 
         errorMessage = nil
+        offlineLanguageMessage = nil
 
         liveTranslationTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: 650_000_000)
@@ -63,8 +111,10 @@ final class TranslatorViewModel {
     }
 
     func triggerTranslation() {
+
         guard canTranslate else { return }
 
+        activeRequestID += 1
         pendingSourceText = sourceText.trimmingCharacters(
             in: .whitespacesAndNewlines
         )
@@ -86,28 +136,199 @@ final class TranslatorViewModel {
         }
     }
 
+    func prepareSelectedLanguagesForOffline() {
+
+        guard canPrepareOfflineLanguages else { return }
+
+        offlineLanguageMessage = nil
+        isPreparingOfflineLanguages = true
+
+        let newConfiguration = TranslationSession.Configuration(
+            source: selectedSourceLanguage.language,
+            target: selectedTargetLanguage.language,
+            preferredStrategy: .lowLatency
+        )
+
+        if downloadConfiguration == nil {
+            downloadConfiguration = newConfiguration
+        } else {
+            downloadConfiguration = newConfiguration
+            downloadConfiguration?.invalidate()
+        }
+    }
+
     func translate(using session: TranslationSession, errorMessage: String)
         async
     {
         let text = pendingSourceText
+        let requestID = activeRequestID
 
         do {
+            isPreparingLanguages = !(await session.isReady)
+
+            guard requestID == activeRequestID, text == pendingSourceText else {
+                return
+            }
+
             let response = try await session.translate(text)
 
-            guard text == pendingSourceText else { return }
+            guard requestID == activeRequestID, text == pendingSourceText else {
+                return
+            }
 
             translatedText = response.targetText
+            saveTranslation(
+                sourceText: text,
+                translatedText: response.targetText
+            )
             isTranslating = false
+            isPreparingLanguages = false
             self.errorMessage = nil
         } catch {
-            guard text == pendingSourceText else { return }
+            guard requestID == activeRequestID, text == pendingSourceText else {
+                return
+            }
 
             isTranslating = false
+            isPreparingLanguages = false
             self.errorMessage = errorMessage
         }
     }
 
+    func toggleCurrentFavorite() {
+
+        if let currentRecord {
+            toggleFavorite(for: currentRecord)
+            return
+        }
+
+        let trimmedSourceText = sourceText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        guard !trimmedSourceText.isEmpty, !translatedText.isEmpty else {
+            return
+        }
+
+        let record = TranslationRecord(
+            sourceText: trimmedSourceText,
+            translatedText: translatedText,
+            sourceLanguageID: selectedSourceLanguage.id,
+            targetLanguageID: selectedTargetLanguage.id,
+            isFavorite: true
+        )
+        historyItems.insert(record, at: 0)
+        persistHistory()
+    }
+
+    func toggleFavorite(for record: TranslationRecord) {
+
+        guard let index = historyItems.firstIndex(where: { $0.id == record.id })
+        else { return }
+
+        historyItems[index].isFavorite.toggle()
+        persistHistory()
+    }
+
+    func useRecord(_ record: TranslationRecord) {
+
+        stopListening()
+        sourceText = record.sourceText
+        translatedText = record.translatedText
+        selectedSourceLanguage =
+            supportedLanguageOptions.first { $0.id == record.sourceLanguageID }
+            ?? selectedSourceLanguage
+        selectedTargetLanguage =
+            supportedLanguageOptions.first { $0.id == record.targetLanguageID }
+            ?? selectedTargetLanguage
+    }
+
+    func clearHistory() {
+
+        historyItems.removeAll()
+        persistHistory()
+    }
+
+    func speakTranslatedText() {
+
+        let text = translatedText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        guard !text.isEmpty else { return }
+
+        if speechSynthesizer.isSpeaking {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+            return
+        }
+
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(
+            language: selectedTargetLanguage.id
+        )
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+        speechSynthesizer.speak(utterance)
+    }
+
+    func toggleListening() {
+
+        if isListening {
+            stopListening()
+        } else {
+            startListening()
+        }
+    }
+
+    func stopListening() {
+
+        speechController.stop()
+        isListening = false
+    }
+
+    private func startListening() {
+
+        speechMessageKey = nil
+        isListening = true
+
+        Task {
+            await speechController.start(
+                languageIdentifier: selectedSourceLanguage.id,
+                onTextChange: { [weak self] recognizedText in
+                    guard let self else { return }
+
+                    sourceText = recognizedText
+                    scheduleLiveTranslation()
+                },
+                onError: { [weak self] messageKey in
+                    guard let self else { return }
+
+                    speechMessageKey = messageKey
+                    isListening = false
+                }
+            )
+
+            if !speechController.isRunning {
+                isListening = false
+            }
+        }
+    }
+
+    func prepareOfflineLanguages(
+
+        using session: TranslationSession,
+        successMessage: String,
+        errorMessage: String
+    ) async {
+        do {
+            try await session.prepareTranslation()
+            isPreparingOfflineLanguages = false
+            offlineLanguageMessage = successMessage
+        } catch {
+            isPreparingOfflineLanguages = false
+            offlineLanguageMessage = errorMessage
+        }
+    }
+
     func swapLanguages() {
+
         let oldSource = selectedSourceLanguage
         selectedSourceLanguage = selectedTargetLanguage
         selectedTargetLanguage = oldSource
@@ -119,6 +340,7 @@ final class TranslatorViewModel {
     }
 
     func loadSupportedLanguages() async {
+
         let availability = LanguageAvailability()
         let languages = await availability.supportedLanguages
         let options =
@@ -139,15 +361,64 @@ final class TranslatorViewModel {
     }
 
     private func resetTranslationState() {
+
+        activeRequestID += 1
         pendingSourceText = ""
         translatedText = ""
         errorMessage = nil
         isTranslating = false
+        isPreparingLanguages = false
         configuration = nil
+    }
+
+    private func saveTranslation(sourceText: String, translatedText: String) {
+
+        let trimmedSourceText = sourceText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        let trimmedTranslatedText = translatedText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        guard !trimmedSourceText.isEmpty, !trimmedTranslatedText.isEmpty else {
+            return
+        }
+
+        let existingFavorite =
+            historyItems.first { record in
+                record.sourceText == trimmedSourceText
+                    && record.translatedText == trimmedTranslatedText
+                    && record.sourceLanguageID == selectedSourceLanguage.id
+                    && record.targetLanguageID == selectedTargetLanguage.id
+            }?.isFavorite ?? false
+
+        historyItems.removeAll { record in
+            record.sourceText == trimmedSourceText
+                && record.translatedText == trimmedTranslatedText
+                && record.sourceLanguageID == selectedSourceLanguage.id
+                && record.targetLanguageID == selectedTargetLanguage.id
+        }
+
+        historyItems.insert(
+            TranslationRecord(
+                sourceText: trimmedSourceText,
+                translatedText: trimmedTranslatedText,
+                sourceLanguageID: selectedSourceLanguage.id,
+                targetLanguageID: selectedTargetLanguage.id,
+                isFavorite: existingFavorite
+            ),
+            at: 0
+        )
+        persistHistory()
+    }
+
+    private func persistHistory() {
+
+        historyStore.save(historyItems)
     }
 }
 
 struct LanguageOption: Identifiable, Hashable {
+
     let id: String
     let name: String
     let symbolName: String
@@ -193,6 +464,7 @@ struct LanguageOption: Identifiable, Hashable {
     }
 
     init(language: Locale.Language) {
+
         let components = Locale.Language.Components(language: language)
         let localeIdentifier = Locale(languageComponents: components).identifier
         let languageCode = language.languageCode?.identifier ?? localeIdentifier
@@ -208,6 +480,7 @@ struct LanguageOption: Identifiable, Hashable {
     }
 
     private static func symbolName(for identifier: String) -> String {
+
         if identifier.hasPrefix("en") { return "globe.americas.fill" }
         if identifier.hasPrefix("fr") || identifier.hasPrefix("es")
             || identifier.hasPrefix("it") || identifier.hasPrefix("de")
@@ -224,6 +497,7 @@ struct LanguageOption: Identifiable, Hashable {
 }
 
 extension Array where Element == LanguageOption {
+
     func first(
         matching languageCode: String,
         excluding excludedOption: LanguageOption? = nil
