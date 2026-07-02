@@ -134,9 +134,10 @@ final class TranslatorViewModel {
 
         if configuration == nil {
             configuration = newConfiguration
+        } else if configuration == newConfiguration {
+            configuration?.invalidate()
         } else {
             configuration = newConfiguration
-            configuration?.invalidate()
         }
     }
 

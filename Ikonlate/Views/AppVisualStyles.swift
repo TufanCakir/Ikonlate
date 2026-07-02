@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+#if canImport(UIKit)
+    import UIKit
+#endif
+
 extension View {
 
     func panelStyle(highContrast: Bool = false) -> some View {
@@ -36,6 +40,21 @@ extension View {
             symbolEffect(.pulse, options: .repeat(.continuous), value: isActive)
         }
     }
+
+    #if canImport(UIKit)
+        func dismissKeyboardOnTap() -> some View {
+
+            contentShape(Rectangle())
+                .onTapGesture {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil,
+                        from: nil,
+                        for: nil
+                    )
+                }
+        }
+    #endif
 }
 
 struct GlassmorphismBackground: View {

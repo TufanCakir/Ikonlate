@@ -32,6 +32,9 @@ struct TranslatorView: View {
                     reduceAnimations: settings.reduceAnimations
                 )
 
+                Color.clear
+                    .dismissKeyboardOnTap()
+
                 content
             }
             .toolbar {
@@ -144,6 +147,7 @@ struct TranslatorView: View {
             TranslatorOutputSection(viewModel: viewModel)
 
             Spacer(minLength: 0)
+
             TranslatorLanguageControls(viewModel: viewModel)
         }
         .padding(.horizontal, 16)
