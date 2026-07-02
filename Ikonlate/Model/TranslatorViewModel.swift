@@ -23,6 +23,7 @@ final class TranslatorViewModel {
     var downloadConfiguration: TranslationSession.Configuration?
     var isTranslating = false
     var isPreparingLanguages = false
+    var isTakingLongToPrepareLanguages = false
     var isPreparingOfflineLanguages = false
     var offlineLanguageMessage: String?
     var errorMessage: String?
@@ -31,6 +32,7 @@ final class TranslatorViewModel {
     var isListening = false
 
     @ObservationIgnored private var liveTranslationTask: Task<Void, Never>?
+    @ObservationIgnored private var longPreparationTask: Task<Void, Never>?
     @ObservationIgnored private var pendingSourceText = ""
     @ObservationIgnored private var activeRequestID = 0
     @ObservationIgnored private let historyStore = TranslatorHistoryStore()
@@ -115,12 +117,14 @@ final class TranslatorViewModel {
         guard canTranslate else { return }
 
         activeRequestID += 1
+        longPreparationTask?.cancel()
         pendingSourceText = sourceText.trimmingCharacters(
             in: .whitespacesAndNewlines
         )
         errorMessage = nil
         translatedText = ""
         isTranslating = true
+        isTakingLongToPrepareLanguages = false
 
         let newConfiguration = TranslationSession.Configuration(
             source: selectedSourceLanguage.language,
@@ -157,25 +161,23 @@ final class TranslatorViewModel {
         }
     }
 
-    func translate(using session: TranslationSession, errorMessage: String)
-        async
-    {
+    func translate(
+        using session: TranslationSession,
+        errorMessage: String
+    ) async {
         let text = pendingSourceText
         let requestID = activeRequestID
 
         do {
-            isPreparingLanguages = !(await session.isReady)
-
-            guard requestID == activeRequestID, text == pendingSourceText else {
-                return
-            }
-
+            isPreparingLanguages = true
+            scheduleLongPreparationNotice(requestID: requestID, text: text)
             let response = try await session.translate(text)
 
             guard requestID == activeRequestID, text == pendingSourceText else {
                 return
             }
 
+            longPreparationTask?.cancel()
             translatedText = response.targetText
             saveTranslation(
                 sourceText: text,
@@ -183,14 +185,17 @@ final class TranslatorViewModel {
             )
             isTranslating = false
             isPreparingLanguages = false
+            isTakingLongToPrepareLanguages = false
             self.errorMessage = nil
         } catch {
             guard requestID == activeRequestID, text == pendingSourceText else {
                 return
             }
 
+            longPreparationTask?.cancel()
             isTranslating = false
             isPreparingLanguages = false
+            isTakingLongToPrepareLanguages = false
             self.errorMessage = errorMessage
         }
     }
@@ -363,12 +368,37 @@ final class TranslatorViewModel {
     private func resetTranslationState() {
 
         activeRequestID += 1
+        longPreparationTask?.cancel()
         pendingSourceText = ""
         translatedText = ""
         errorMessage = nil
         isTranslating = false
         isPreparingLanguages = false
+        isTakingLongToPrepareLanguages = false
         configuration = nil
+    }
+
+    private func scheduleLongPreparationNotice(
+        requestID: Int,
+        text: String
+    ) {
+        longPreparationTask?.cancel()
+
+        longPreparationTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 8_000_000_000)
+
+            guard !Task.isCancelled else { return }
+
+            await MainActor.run {
+                guard let self,
+                    requestID == self.activeRequestID,
+                    text == self.pendingSourceText,
+                    self.isTranslating
+                else { return }
+
+                self.isTakingLongToPrepareLanguages = true
+            }
+        }
     }
 
     private func saveTranslation(sourceText: String, translatedText: String) {

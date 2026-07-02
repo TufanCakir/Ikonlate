@@ -280,14 +280,8 @@ struct TranslatorOutputSection: View {
             if viewModel.isTranslating {
                 HStack(spacing: 10) {
                     ProgressView()
-                    Text(
-                        settings.text(
-                            viewModel.isPreparingLanguages
-                                ? "translator.preparingLanguages"
-                                : "translator.loading"
-                        )
-                    )
-                    .foregroundStyle(.secondary)
+                    Text(settings.text(loadingMessageKey))
+                        .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 16)
@@ -329,6 +323,18 @@ struct TranslatorOutputSection: View {
                     )
             }
         }
+    }
+
+    private var loadingMessageKey: String {
+        if viewModel.isTakingLongToPrepareLanguages {
+            return "translator.longPreparation"
+        }
+
+        if viewModel.isPreparingLanguages {
+            return "translator.preparingLanguages"
+        }
+
+        return "translator.loading"
     }
 }
 

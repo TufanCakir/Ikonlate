@@ -38,6 +38,8 @@
         "translator.loading": "Translation wird vorbereitet",
         "translator.preparingLanguages":
             "Sprachen werden geladen oder vorbereitet",
+        "translator.longPreparation":
+            "Sprachmodell wird vorbereitet. Das kann beim ersten Mal länger dauern.",
         "translator.emptyResult": "Deine Übersetzung erscheint hier.",
         "translator.resultAccessibilityLabel": "Übersetzung",
         "translator.resultAccessibilityHint":
@@ -48,18 +50,14 @@
         "speech.stop": "Diktat stoppen",
         "speech.speak": "Übersetzung vorlesen",
         "speech.listening": "Hört zu und übersetzt live",
-        "speech.error.permission":
-            "Spracherkennung wurde nicht erlaubt.",
-        "speech.error.microphone":
-            "Mikrofonzugriff wurde nicht erlaubt.",
+        "speech.error.permission": "Spracherkennung wurde nicht erlaubt.",
+        "speech.error.microphone": "Mikrofonzugriff wurde nicht erlaubt.",
         "speech.error.unavailable":
             "Spracherkennung ist für diese Sprache gerade nicht verfügbar.",
-        "speech.error.start":
-            "Mikrofon konnte nicht gestartet werden.",
+        "speech.error.start": "Mikrofon konnte nicht gestartet werden.",
         "speech.error.inputFormat":
             "Das Mikrofon liefert gerade kein gültiges Audioformat. Prüfe den Simulator oder teste auf einem echten Gerät.",
-        "speech.error.recognition":
-            "Spracherkennung wurde unterbrochen.",
+        "speech.error.recognition": "Spracherkennung wurde unterbrochen.",
         "history.title": "Verlauf",
         "history.empty": "Noch keine Übersetzungen",
         "history.emptyFavorites": "Noch keine Favoriten",
@@ -89,7 +87,6 @@
         "camera.noText": "Kein lesbarer Text im Foto gefunden.",
         "camera.ocrError": "Texterkennung fehlgeschlagen.",
         "camera.translationError": "Kamera-Übersetzung fehlgeschlagen.",
-        "settings.title": "Einstellungen",
         "settings.section.language": "Sprache",
         "settings.appLanguage": "App-Sprache",
         "settings.appLanguageHint":
@@ -156,6 +153,8 @@
         "translator.outputTitle": "Result",
         "translator.loading": "Preparing translation",
         "translator.preparingLanguages": "Loading or preparing languages",
+        "translator.longPreparation":
+            "Preparing language model. This can take longer the first time.",
         "translator.emptyResult": "Your translation appears here.",
         "translator.resultAccessibilityLabel": "Translation",
         "translator.resultAccessibilityHint":
@@ -166,18 +165,14 @@
         "speech.stop": "Stop dictation",
         "speech.speak": "Speak translation",
         "speech.listening": "Listening and translating live",
-        "speech.error.permission":
-            "Speech recognition was not allowed.",
-        "speech.error.microphone":
-            "Microphone access was not allowed.",
+        "speech.error.permission": "Speech recognition was not allowed.",
+        "speech.error.microphone": "Microphone access was not allowed.",
         "speech.error.unavailable":
             "Speech recognition is not available for this language right now.",
-        "speech.error.start":
-            "The microphone could not be started.",
+        "speech.error.start": "The microphone could not be started.",
         "speech.error.inputFormat":
             "The microphone is not providing a valid audio format. Check the simulator or test on a real device.",
-        "speech.error.recognition":
-            "Speech recognition was interrupted.",
+        "speech.error.recognition": "Speech recognition was interrupted.",
         "history.title": "History",
         "history.empty": "No translations yet",
         "history.emptyFavorites": "No favorites yet",
@@ -207,7 +202,6 @@
         "camera.noText": "No readable text was found in the photo.",
         "camera.ocrError": "Text recognition failed.",
         "camera.translationError": "Camera translation failed.",
-        "settings.title": "Settings",
         "settings.section.language": "Language",
         "settings.appLanguage": "App language",
         "settings.appLanguageHint":

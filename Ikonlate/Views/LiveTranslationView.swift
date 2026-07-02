@@ -159,7 +159,11 @@ struct LiveTranslationView: View {
                     .multilineTextAlignment(.center)
             } else if viewModel.isTranslating {
                 Label(
-                    settings.text("translator.loading"),
+                    settings.text(
+                        viewModel.isTakingLongToPrepareLanguages
+                            ? "translator.longPreparation"
+                            : "translator.loading"
+                    ),
                     systemImage: "waveform"
                 )
                 .font(.callout.weight(.medium))
@@ -280,7 +284,7 @@ private struct LiveLanguageRow: View {
             }
         } label: {
             HStack(spacing: 12) {
-                
+
                 Text(title)
                     .font(.body.weight(.semibold))
                     .foregroundStyle(.primary)
