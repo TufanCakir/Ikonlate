@@ -30,6 +30,8 @@ final class TranslatorViewModel {
     var historyItems: [TranslationRecord]
     var speechMessageKey: String?
     var isListening = false
+    var audioLevel: Float = 0
+    private(set) var historyLimit = 80
 
     @ObservationIgnored private var liveTranslationTask: Task<Void, Never>?
     @ObservationIgnored private var longPreparationTask: Task<Void, Never>?
@@ -129,7 +131,7 @@ final class TranslatorViewModel {
         let newConfiguration = TranslationSession.Configuration(
             source: selectedSourceLanguage.language,
             target: selectedTargetLanguage.language,
-            preferredStrategy: .lowLatency
+            preferredStrategy: .highFidelity
         )
 
         if configuration == nil {
@@ -254,6 +256,21 @@ final class TranslatorViewModel {
         persistHistory()
     }
 
+    func deleteRecord(_ record: TranslationRecord) {
+        historyItems.removeAll { $0.id == record.id }
+        persistHistory()
+    }
+
+    func setHistoryLimit(_ limit: Int) {
+        guard historyLimit != limit else { return }
+
+        historyLimit = limit
+        if limit > 0, historyItems.count > limit {
+            historyItems = Array(historyItems.prefix(limit))
+        }
+        persistHistory()
+    }
+
     func speakTranslatedText() {
 
         let text = translatedText.trimmingCharacters(
@@ -287,6 +304,7 @@ final class TranslatorViewModel {
 
         speechController.stop()
         isListening = false
+        audioLevel = 0
     }
 
     private func startListening() {
@@ -294,7 +312,9 @@ final class TranslatorViewModel {
         speechMessageKey = nil
         isListening = true
 
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+
             await speechController.start(
                 languageIdentifier: selectedSourceLanguage.id,
                 onTextChange: { [weak self] recognizedText in
@@ -303,11 +323,15 @@ final class TranslatorViewModel {
                     sourceText = recognizedText
                     scheduleLiveTranslation()
                 },
+                onAudioLevelChange: { [weak self] level in
+                    self?.audioLevel = level
+                },
                 onError: { [weak self] messageKey in
                     guard let self else { return }
 
                     speechMessageKey = messageKey
                     isListening = false
+                    audioLevel = 0
                 }
             )
 
@@ -347,7 +371,9 @@ final class TranslatorViewModel {
 
     func loadSupportedLanguages() async {
 
-        let availability = LanguageAvailability()
+        let availability = LanguageAvailability(
+            preferredStrategy: .highFidelity
+        )
         let languages = await availability.supportedLanguages
         let options =
             languages
@@ -444,7 +470,7 @@ final class TranslatorViewModel {
 
     private func persistHistory() {
 
-        historyStore.save(historyItems)
+        historyStore.save(historyItems, limit: historyLimit)
     }
 }
 
@@ -500,8 +526,8 @@ struct LanguageOption: Identifiable, Hashable {
         let localeIdentifier = Locale(languageComponents: components).identifier
         let languageCode = language.languageCode?.identifier ?? localeIdentifier
         let localizedName =
-            Locale.current.localizedString(forIdentifier: localeIdentifier)
-            ?? Locale.current.localizedString(forLanguageCode: languageCode)
+            Locale.current.localizedString(forLanguageCode: languageCode)
+            ?? Locale.current.localizedString(forIdentifier: localeIdentifier)
             ?? localeIdentifier
 
         id = localeIdentifier

@@ -15,14 +15,31 @@ struct TranslatorHistoryView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedFilter = TranslatorHistoryFilter.all
+    @State private var searchText = ""
+    @State private var isShowingClearConfirmation = false
 
     private var records: [TranslationRecord] {
 
-        switch selectedFilter {
-        case .all:
-            viewModel.historyItems
-        case .favorites:
-            viewModel.favoriteItems
+        let filteredRecords =
+            switch selectedFilter {
+            case .all:
+                viewModel.historyItems
+            case .favorites:
+                viewModel.favoriteItems
+            }
+
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return filteredRecords }
+
+        return filteredRecords.filter { record in
+            record.sourceText.localizedCaseInsensitiveContains(query)
+                || record.translatedText.localizedCaseInsensitiveContains(query)
+                || record.sourceLanguageID.localizedCaseInsensitiveContains(
+                    query
+                )
+                || record.targetLanguageID.localizedCaseInsensitiveContains(
+                    query
+                )
         }
     }
 
@@ -44,9 +61,11 @@ struct TranslatorHistoryView: View {
                         ContentUnavailableView(
 
                             settings.text(
-                                selectedFilter == .favorites
-                                    ? "history.emptyFavorites"
-                                    : "history.empty"
+                                !searchText.isEmpty
+                                    ? "history.search.empty"
+                                    : selectedFilter == .favorites
+                                        ? "history.emptyFavorites"
+                                        : "history.empty"
                             ),
                             systemImage: selectedFilter == .favorites
                                 ? "star"
@@ -76,11 +95,39 @@ struct TranslatorHistoryView: View {
                             )
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
+                            .swipeActions(
+                                edge: .trailing,
+                                allowsFullSwipe: true
+                            ) {
+                                Button(role: .destructive) {
+                                    viewModel.deleteRecord(record)
+                                } label: {
+                                    Label(
+                                        settings.text("history.delete"),
+                                        systemImage: "trash"
+                                    )
+                                }
+                            }
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    viewModel.deleteRecord(record)
+                                } label: {
+                                    Label(
+                                        settings.text("history.delete"),
+                                        systemImage: "trash"
+                                    )
+                                }
+                            }
                         }
                     }
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
+                .searchable(
+                    text: $searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: settings.text("history.search.placeholder")
+                )
             }
             .toolbar {
 
@@ -107,7 +154,7 @@ struct TranslatorHistoryView: View {
                 ToolbarItem(placement: .topBarTrailing) {
 
                     Button {
-                        viewModel.clearHistory()
+                        isShowingClearConfirmation = true
                     } label: {
                         Image(systemName: "trash")
                     }
@@ -121,6 +168,21 @@ struct TranslatorHistoryView: View {
                         dismiss()
                     }
                 }
+            }
+            .confirmationDialog(
+                settings.text("history.clear.confirm.title"),
+                isPresented: $isShowingClearConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button(
+                    settings.text("history.clear.confirm.action"),
+                    role: .destructive
+                ) {
+                    viewModel.clearHistory()
+                }
+                Button(settings.text("common.cancel"), role: .cancel) {}
+            } message: {
+                Text(settings.text("history.clear.confirm.message"))
             }
         }
     }
@@ -181,13 +243,15 @@ private struct TranslationRecordRow: View {
             }
             .padding(.vertical, 6)
             .padding(14)
-            .background(
-                settings.highContrast ? .regularMaterial : .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .glassEffect(
+                settings.highContrast
+                    ? .regular.tint(.primary.opacity(0.12))
+                    : .regular.interactive(),
+                in: .rect(cornerRadius: 20)
             )
             .overlay {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(.white.opacity(0.28), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(.white.opacity(0.18), lineWidth: 0.5)
             }
         }
         .buttonStyle(.plain)

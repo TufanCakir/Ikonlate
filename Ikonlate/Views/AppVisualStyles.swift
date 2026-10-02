@@ -15,17 +15,17 @@ extension View {
 
     func panelStyle(highContrast: Bool = false) -> some View {
         padding(16)
-            .background(
-                highContrast ? .regularMaterial : .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .glassEffect(
+                highContrast ? .regular.tint(.primary.opacity(0.12)) : .regular,
+                in: .rect(cornerRadius: 24)
             )
             .overlay {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .stroke(
                         highContrast
-                            ? Color.primary.opacity(0.35)
-                            : Color.white.opacity(0.35),
-                        lineWidth: highContrast ? 1.5 : 1
+                            ? Color.primary.opacity(0.28)
+                            : Color.white.opacity(0.18),
+                        lineWidth: highContrast ? 1.5 : 0.5
                     )
             }
     }

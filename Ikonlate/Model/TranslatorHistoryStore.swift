@@ -2,12 +2,13 @@
 //  TranslatorHistoryStore.swift
 //  Ikonlate
 //
-//  Created by Codex on 01.07.26.
+//  Created by Tufan Cakir on 30.06.26.
 //
 
 import Foundation
 
-struct TranslationRecord: Identifiable, Codable, Hashable {
+nonisolated struct TranslationRecord: Identifiable, Codable, Hashable, Sendable
+{
 
     let id: UUID
     let sourceText: String
@@ -40,7 +41,6 @@ struct TranslatorHistoryStore {
 
     private let defaults: UserDefaults
     private let key = "translatorHistoryItems"
-    private let limit = 80
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -60,10 +60,14 @@ struct TranslatorHistoryStore {
         }
     }
 
-    func save(_ records: [TranslationRecord]) {
+    func save(_ records: [TranslationRecord], limit: Int = 80) {
 
         do {
-            let data = try JSONEncoder().encode(Array(records.prefix(limit)))
+            let recordsToSave =
+                limit > 0
+                ? Array(records.prefix(limit))
+                : records
+            let data = try JSONEncoder().encode(recordsToSave)
             defaults.set(data, forKey: key)
         } catch {
             defaults.removeObject(forKey: key)

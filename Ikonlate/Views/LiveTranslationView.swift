@@ -60,7 +60,14 @@ struct LiveTranslationView: View {
             )
         }
         .task {
+            viewModel.setHistoryLimit(settings.historyLimit)
             await viewModel.loadSupportedLanguages()
+        }
+        .onChange(of: settings.historyLimit) { _, newLimit in
+            viewModel.setHistoryLimit(newLimit)
+        }
+        .onDisappear {
+            viewModel.stopListening()
         }
         .onChange(of: viewModel.translatedText) { _, newValue in
             guard viewModel.isListening, !newValue.isEmpty else { return }
@@ -202,10 +209,7 @@ struct LiveTranslationView: View {
             )
         }
         .padding(.vertical, 6)
-        .background(
-            .ultraThinMaterial,
-            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
-        )
+        .glassEffect(.regular, in: .rect(cornerRadius: 28))
         .overlay {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .stroke(.white.opacity(0.28), lineWidth: 1)
@@ -234,7 +238,7 @@ struct LiveTranslationView: View {
             .frame(maxWidth: .infinity)
             .frame(height: 58)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(.glass)
         .tint(viewModel.isListening ? .red : settings.colorTint)
         .disabled(
             viewModel.selectedSourceLanguage == viewModel.selectedTargetLanguage

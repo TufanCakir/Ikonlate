@@ -25,7 +25,7 @@ struct TranslatorSearchImportButton: View {
             )
             .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.glass)
         .controlSize(settings.largeControls ? .large : .regular)
         .accessibilityHint(settings.text("translator.importSearchHint"))
     }
@@ -58,7 +58,7 @@ struct TranslatorLanguageControls: View {
                             settings.highContrast ? .black : .white
                         )
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.glass)
                 .tint(settings.colorTint)
                 .translatorSymbolEffect(
                     isActive: true,
@@ -81,8 +81,8 @@ struct TranslatorLanguageControls: View {
                 ),
                 systemImage: "checkmark.seal"
             )
-            .font(.caption2.weight(.medium))
-            .foregroundStyle(.secondary)
+            .font(.caption.weight(.medium))
+            .foregroundStyle(.primary.opacity(0.74))
             .frame(maxWidth: .infinity, alignment: .center)
 
             Button {
@@ -100,7 +100,7 @@ struct TranslatorLanguageControls: View {
                 )
                 .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.glass)
             .controlSize(settings.largeControls ? .large : .regular)
             .disabled(
                 !viewModel.canPrepareOfflineLanguages
@@ -109,7 +109,7 @@ struct TranslatorLanguageControls: View {
 
             if let offlineLanguageMessage = viewModel.offlineLanguageMessage {
                 Text(offlineLanguageMessage)
-                    .font(.caption2.weight(.medium))
+                    .font(.caption.weight(.medium))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
             }
@@ -119,16 +119,9 @@ struct TranslatorLanguageControls: View {
                     settings.text(speechMessageKey),
                     systemImage: "mic.slash"
                 )
-                .font(.caption2.weight(.medium))
+                .font(.caption.weight(.medium))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.orange)
-            } else if viewModel.isListening {
-                Label(
-                    settings.text("speech.listening"),
-                    systemImage: "mic.fill"
-                )
-                .font(.caption2.weight(.medium))
-                .foregroundStyle(.red)
             }
         }
         .panelStyle(highContrast: settings.highContrast)
@@ -152,25 +145,23 @@ struct TranslatorLanguageControls: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary.opacity(0.72))
                     Text(selection.wrappedValue.name)
                         .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .minimumScaleFactor(0.72)
                 }
 
                 Spacer(minLength: 4)
 
                 Image(systemName: "chevron.down")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary.opacity(0.72))
             }
             .padding(.horizontal, 12)
             .frame(height: settings.largeControls ? 60 : 50)
-            .background(
-                .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-            )
+            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 18))
         }
         .buttonStyle(.plain)
     }
@@ -188,11 +179,23 @@ struct TranslatorInputSection: View {
 
         VStack(alignment: .leading, spacing: 12) {
 
-            TranslatorSectionHeader(
-                title: settings.text("translator.inputTitle"),
-                symbolName: "text.quote",
-                isActive: viewModel.isTranslating
-            )
+            HStack(spacing: 10) {
+                TranslatorSectionHeader(
+                    title: settings.text("translator.inputTitle"),
+                    symbolName: "text.quote",
+                    isActive: viewModel.isTranslating
+                )
+
+                Spacer(minLength: 8)
+
+                if viewModel.isListening {
+                    MicrophoneLevelIndicator(
+                        level: viewModel.audioLevel,
+                        title: settings.text("speech.listening")
+                    )
+                    .transition(.scale.combined(with: .opacity))
+                }
+            }
 
             ZStack(alignment: .topLeading) {
 
@@ -219,7 +222,7 @@ struct TranslatorInputSection: View {
                 if viewModel.sourceText.isEmpty {
 
                     Text(settings.text("translator.inputPlaceholder"))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary.opacity(0.68))
                         .padding(.horizontal, 18)
                         .padding(.vertical, 20)
                         .allowsHitTesting(false)
@@ -298,7 +301,7 @@ struct TranslatorOutputSection: View {
                     settings.text("translator.emptyResult"),
                     systemImage: "bubble.left.and.text.bubble.right"
                 )
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary.opacity(0.68))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 12)
             } else {
@@ -335,6 +338,45 @@ struct TranslatorOutputSection: View {
         }
 
         return "translator.loading"
+    }
+}
+
+private struct MicrophoneLevelIndicator: View {
+
+    let level: Float
+    let title: String
+
+    var body: some View {
+        HStack(spacing: 7) {
+            HStack(alignment: .center, spacing: 2) {
+                ForEach(0..<4, id: \.self) { index in
+                    Capsule()
+                        .fill(.red)
+                        .frame(
+                            width: 3,
+                            height: barHeight(at: index)
+                        )
+                }
+            }
+            .frame(height: 18)
+
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .lineLimit(1)
+        }
+        .foregroundStyle(.red)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(.red.opacity(0.14), in: Capsule())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .animation(.smooth(duration: 0.12), value: level)
+    }
+
+    private func barHeight(at index: Int) -> CGFloat {
+        let multipliers: [Float] = [0.55, 1, 0.78, 0.42]
+        let reactiveHeight = 5 + (level * 13 * multipliers[index])
+        return CGFloat(max(5, reactiveHeight))
     }
 }
 

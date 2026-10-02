@@ -2,7 +2,7 @@
 //  SpeechRecognitionController.swift
 //  Ikonlate
 //
-//  Created by Codex on 01.07.26.
+//  Created by Tufan Cakir on 30.06.26.
 //
 
 import AVFAudio
@@ -15,6 +15,7 @@ final class SpeechRecognitionController {
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private var speechRecognizer: SFSpeechRecognizer?
+    private var hasInstalledAudioTap = false
 
     var isRunning: Bool {
 
@@ -25,9 +26,10 @@ final class SpeechRecognitionController {
 
         languageIdentifier: String,
         onTextChange: @escaping @MainActor (String) -> Void,
+        onAudioLevelChange: @escaping @MainActor (Float) -> Void,
         onError: @escaping @MainActor (String) -> Void
     ) async {
-        stop()
+        stop(deactivateAudioSession: false)
 
         let isAuthorized = await requestSpeechAuthorization()
         guard isAuthorized else {
@@ -59,10 +61,11 @@ final class SpeechRecognitionController {
         speechRecognizer = recognizer
 
         do {
-            try configureAudioSession()
+            try await configureAudioSession()
             try startAudioEngine(
                 recognizer: recognizer,
                 onTextChange: onTextChange,
+                onAudioLevelChange: onAudioLevelChange,
                 onError: onError
             )
         } catch {
@@ -77,21 +80,27 @@ final class SpeechRecognitionController {
     }
 
     func stop() {
+        stop(deactivateAudioSession: true)
+    }
+
+    private func stop(deactivateAudioSession: Bool) {
 
         if audioEngine.isRunning {
             audioEngine.stop()
         }
 
-        audioEngine.inputNode.removeTap(onBus: 0)
+        if hasInstalledAudioTap {
+            audioEngine.inputNode.removeTap(onBus: 0)
+            hasInstalledAudioTap = false
+        }
         recognitionRequest?.endAudio()
         recognitionTask?.cancel()
         recognitionRequest = nil
         recognitionTask = nil
 
-        try? AVAudioSession.sharedInstance().setActive(
-            false,
-            options: .notifyOthersOnDeactivation
-        )
+        if deactivateAudioSession {
+            AVAudioSession.sharedInstance().deactivate { _, _ in }
+        }
     }
 
     private func requestSpeechAuthorization() async -> Bool {
@@ -112,7 +121,7 @@ final class SpeechRecognitionController {
         }
     }
 
-    private func configureAudioSession() throws {
+    private func configureAudioSession() async throws {
 
         let audioSession = AVAudioSession.sharedInstance()
         try audioSession.setCategory(
@@ -120,13 +129,14 @@ final class SpeechRecognitionController {
             mode: .measurement,
             options: [.duckOthers]
         )
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        try await audioSession.activate()
     }
 
     private func startAudioEngine(
 
         recognizer: SFSpeechRecognizer,
         onTextChange: @escaping @MainActor (String) -> Void,
+        onAudioLevelChange: @escaping @MainActor (Float) -> Void,
         onError: @escaping @MainActor (String) -> Void
     ) throws {
         let request = SFSpeechAudioBufferRecognitionRequest()
@@ -141,16 +151,20 @@ final class SpeechRecognitionController {
             throw SpeechRecognitionControllerError.invalidInputFormat
         }
 
-        inputNode.installTap(
+        try inputNode.installAudioTap(
             onBus: 0,
             bufferSize: 1024,
-            format: recordingFormat
-        ) {
-            [weak self]
-            buffer,
-            _ in
-            self?.recognitionRequest?.append(buffer)
-        }
+            format: recordingFormat,
+            tapProvider: { readOnlyBuffer, _ in
+                request.append(AVAudioPCMBuffer(copying: readOnlyBuffer))
+
+                let level = Self.normalizedAudioLevel(from: readOnlyBuffer)
+                Task { @MainActor in
+                    onAudioLevelChange(level)
+                }
+            }
+        )
+        hasInstalledAudioTap = true
 
         recognitionTask = recognizer.recognitionTask(with: request) {
             [weak self]
@@ -173,6 +187,41 @@ final class SpeechRecognitionController {
 
         audioEngine.prepare()
         try audioEngine.start()
+    }
+
+    nonisolated private static func normalizedAudioLevel(
+        from buffer: AVReadOnlyAudioPCMBuffer
+    ) -> Float {
+        guard buffer.format.channelCount > 0 else { return 0 }
+
+        let meanAmplitude: Float
+        switch buffer.channelData(0) {
+        case .float(let samples):
+            guard !samples.isEmpty else { return 0 }
+            var total: Float = 0
+            for sample in samples {
+                total += abs(sample)
+            }
+            meanAmplitude = total / Float(samples.count)
+        case .int16(let samples):
+            guard !samples.isEmpty else { return 0 }
+            var total: Float = 0
+            for sample in samples {
+                total += abs(Float(sample) / Float(Int16.max))
+            }
+            meanAmplitude = total / Float(samples.count)
+        case .int32(let samples):
+            guard !samples.isEmpty else { return 0 }
+            var total: Float = 0
+            for sample in samples {
+                total += abs(Float(sample) / Float(Int32.max))
+            }
+            meanAmplitude = total / Float(samples.count)
+        @unknown default:
+            return 0
+        }
+
+        return min(max(meanAmplitude * 12, 0.06), 1)
     }
 }
 

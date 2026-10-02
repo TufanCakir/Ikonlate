@@ -144,7 +144,7 @@ struct CameraView: View {
                 .frame(maxWidth: .infinity)
                 .foregroundStyle(settings.highContrast ? .black : .white)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.glass)
             .tint(settings.colorTint)
 
             Button {
@@ -156,7 +156,7 @@ struct CameraView: View {
                 )
                 .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.glass)
             .disabled(!viewModel.hasRecognizedText || viewModel.isTranslating)
         }
         .controlSize(settings.largeControls ? .large : .regular)
@@ -203,7 +203,7 @@ struct CameraView: View {
                     )
                     .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.glass)
                 .controlSize(settings.largeControls ? .large : .regular)
             }
         }

@@ -108,7 +108,14 @@ struct TranslatorView: View {
             )
         }
         .task {
+            viewModel.setHistoryLimit(settings.historyLimit)
             await viewModel.loadSupportedLanguages()
+        }
+        .onChange(of: settings.historyLimit) { _, newLimit in
+            viewModel.setHistoryLimit(newLimit)
+        }
+        .onDisappear {
+            viewModel.stopListening()
         }
         .onChange(of: searchText) { _, newValue in
             viewModel.autoImportSearchText(newValue)

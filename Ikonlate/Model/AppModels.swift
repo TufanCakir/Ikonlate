@@ -9,18 +9,18 @@ import Foundation
 import SwiftUI
 
 struct AppInfo {
-    
+
     let appVersion: String
     let buildNumber: String
     let bundleIdentifier: String
     let iOSVersion: String
 
     static func current(
-        
+
         bundle: Bundle = .main,
         processInfo: ProcessInfo = .processInfo
     ) -> AppInfo {
-        
+
         AppInfo(
             appVersion: bundle.infoDictionary?["CFBundleShortVersionString"]
                 as? String ?? "-",
@@ -37,12 +37,12 @@ struct AppCopyStore {
     private let values: [String: [String: String]]
 
     init(bundle: Bundle = .main) {
-        
+
         values = Self.load("AppCopy", from: bundle) ?? [:]
     }
 
     func text(_ key: String, languageCode: String) -> String {
-        
+
         values[languageCode]?[key] ?? values["en"]?[key] ?? key
     }
 
@@ -50,7 +50,7 @@ struct AppCopyStore {
         -> String
     {
         NSString(
-            
+
             format: text(key, languageCode: languageCode),
             locale: Locale.current,
             arguments: getVaList(arguments)

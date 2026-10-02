@@ -85,7 +85,7 @@ struct OnboardingView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: settings.largeControls ? 56 : 50)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.glass)
                 .controlSize(settings.largeControls ? .large : .regular)
                 .tint(settings.colorTint)
                 .padding(.horizontal, 24)
@@ -125,13 +125,13 @@ private struct OnboardingPageView: View {
                 .font(.system(size: settings.largeControls ? 76 : 64))
                 .foregroundStyle(page.accentColor)
                 .frame(width: 128, height: 128)
-                .background(
-                    .ultraThinMaterial,
-                    in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .glassEffect(
+                    .regular.tint(page.accentColor.opacity(0.22)),
+                    in: .rect(cornerRadius: 28)
                 )
                 .overlay {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(.white.opacity(0.35), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(.white.opacity(0.2), lineWidth: 0.5)
                 }
                 .accessibilityHidden(true)
 

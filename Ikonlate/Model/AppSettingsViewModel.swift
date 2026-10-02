@@ -36,6 +36,10 @@ final class AppSettingsViewModel {
         didSet { defaults.set(speakResultHint, forKey: Keys.speakResultHint) }
     }
 
+    var historyLimit: Int {
+        didSet { defaults.set(historyLimit, forKey: Keys.historyLimit) }
+    }
+
     var hasCompletedOnboarding: Bool {
         didSet {
             defaults.set(
@@ -65,6 +69,8 @@ final class AppSettingsViewModel {
         largeControls = defaults.bool(forKey: Keys.largeControls)
         speakResultHint =
             defaults.object(forKey: Keys.speakResultHint) as? Bool ?? true
+        historyLimit =
+            defaults.object(forKey: Keys.historyLimit) as? Int ?? 80
         hasCompletedOnboarding = defaults.bool(
             forKey: Keys.hasCompletedOnboarding
         )
@@ -99,5 +105,6 @@ private enum Keys {
     static let highContrast = "accessibilityHighContrast"
     static let largeControls = "accessibilityLargeControls"
     static let speakResultHint = "accessibilitySpeakResultHint"
+    static let historyLimit = "translatorHistoryLimit"
     static let hasCompletedOnboarding = "hasCompletedOnboarding"
 }
