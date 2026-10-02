@@ -59,8 +59,7 @@ final class AppSettingsViewModel {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         languageCode =
-            defaults.string(forKey: Keys.languageCode) ?? Locale.current
-            .language.languageCode?.identifier ?? "de"
+            defaults.string(forKey: Keys.languageCode) ?? "system"
         themeMode =
             ThemeMode(rawValue: defaults.string(forKey: Keys.themeMode) ?? "")
             ?? .system
@@ -75,7 +74,7 @@ final class AppSettingsViewModel {
             forKey: Keys.hasCompletedOnboarding
         )
 
-        if !["de", "en"].contains(languageCode) {
+        if !["system", "de", "en"].contains(languageCode) {
             languageCode = "en"
         }
     }
@@ -88,12 +87,26 @@ final class AppSettingsViewModel {
         highContrast ? .primary : .indigo
     }
 
+    var resolvedLanguageCode: String {
+        guard languageCode == "system" else { return languageCode }
+
+        let systemLanguageCode = Locale.current.language.languageCode?
+            .identifier
+        return ["de", "en"].contains(systemLanguageCode)
+            ? systemLanguageCode ?? "en"
+            : "en"
+    }
+
     func text(_ key: String) -> String {
-        copy.text(key, languageCode: languageCode)
+        copy.text(key, languageCode: resolvedLanguageCode)
     }
 
     func formatted(_ key: String, _ arguments: CVarArg...) -> String {
-        copy.formatted(key, languageCode: languageCode, arguments: arguments)
+        copy.formatted(
+            key,
+            languageCode: resolvedLanguageCode,
+            arguments: arguments
+        )
     }
 }
 

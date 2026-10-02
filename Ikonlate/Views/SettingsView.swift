@@ -37,7 +37,7 @@ struct SettingsView: View {
                             SettingsThemeCard(
                                 selection: $settings.themeMode,
                                 options: settings.themeOptions,
-                                languageCode: settings.languageCode,
+                                languageCode: settings.resolvedLanguageCode,
                                 title: settings.text("settings.section.theme"),
                                 hint: settings.text("settings.appearanceHint")
                             )

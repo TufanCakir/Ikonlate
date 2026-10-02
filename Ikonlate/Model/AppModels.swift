@@ -85,6 +85,11 @@ struct AppLanguageOption: Identifiable, Hashable {
     let name: String
     let symbolName: String
 
+    static let system = AppLanguageOption(
+        id: "system",
+        name: "System",
+        symbolName: "iphone"
+    )
     static let german = AppLanguageOption(
         id: "de",
         name: "Deutsch",
@@ -95,7 +100,7 @@ struct AppLanguageOption: Identifiable, Hashable {
         name: "English",
         symbolName: "textformat.abc"
     )
-    static let all = [german, english]
+    static let all = [system, german, english]
 }
 
 struct ThemeOption: Identifiable, Hashable, Decodable {

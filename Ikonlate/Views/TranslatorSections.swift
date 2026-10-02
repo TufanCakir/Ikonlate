@@ -86,7 +86,7 @@ struct TranslatorLanguageControls: View {
             .frame(maxWidth: .infinity, alignment: .center)
 
             Button {
-                viewModel.prepareSelectedLanguagesForOffline()
+                viewModel.requestOfflineLanguageConfirmation()
             } label: {
                 Label(
                     settings.text(
@@ -107,13 +107,6 @@ struct TranslatorLanguageControls: View {
                     || viewModel.isPreparingOfflineLanguages
             )
 
-            if let offlineLanguageMessage = viewModel.offlineLanguageMessage {
-                Text(offlineLanguageMessage)
-                    .font(.caption.weight(.medium))
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-            }
-
             if let speechMessageKey = viewModel.speechMessageKey {
                 Label(
                     settings.text(speechMessageKey),
@@ -125,6 +118,69 @@ struct TranslatorLanguageControls: View {
             }
         }
         .panelStyle(highContrast: settings.highContrast)
+        .alert(
+            offlineAlertTitle,
+            isPresented: offlineAlertIsPresented,
+            presenting: viewModel.offlineLanguageAlert
+        ) { alert in
+            if alert == .confirmation {
+                Button(
+                    settings.text("translator.offlineDownload.confirm.action")
+                ) {
+                    Task {
+                        await viewModel.prepareSelectedLanguagesForOffline()
+                    }
+                }
+                Button(settings.text("common.cancel"), role: .cancel) {}
+            } else {
+                Button(settings.text("common.done")) {}
+            }
+        } message: { alert in
+            Text(offlineAlertMessage(for: alert))
+        }
+    }
+
+    private var offlineAlertIsPresented: Binding<Bool> {
+        Binding {
+            viewModel.offlineLanguageAlert != nil
+        } set: { isPresented in
+            if !isPresented {
+                viewModel.offlineLanguageAlert = nil
+            }
+        }
+    }
+
+    private var offlineAlertTitle: String {
+        switch viewModel.offlineLanguageAlert {
+        case .confirmation:
+            settings.text("translator.offlineDownload.confirm.title")
+        case .alreadyInstalled, .success:
+            settings.text("translator.offlineDownload.success.title")
+        case .unsupported, .failure:
+            settings.text("translator.offlineDownload.error.title")
+        case nil:
+            ""
+        }
+    }
+
+    private func offlineAlertMessage(for alert: OfflineLanguageAlert) -> String
+    {
+        switch alert {
+        case .confirmation:
+            settings.formatted(
+                "translator.offlineDownload.confirm.message",
+                viewModel.selectedSourceLanguage.name,
+                viewModel.selectedTargetLanguage.name
+            )
+        case .alreadyInstalled:
+            settings.text("translator.offlineDownload.alreadyInstalled")
+        case .success:
+            settings.text("translator.offlineDownload.success")
+        case .unsupported:
+            settings.text("translator.offlineDownload.unsupported")
+        case .failure:
+            settings.text("translator.offlineDownload.error")
+        }
     }
 
     private func languageMenu(title: String, selection: Binding<LanguageOption>)

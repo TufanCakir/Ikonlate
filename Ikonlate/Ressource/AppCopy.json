@@ -30,8 +30,18 @@
             "Wähle zwei unterschiedliche Sprachen aus.",
         "translator.offlineDownload.button": "Sprachen offline laden",
         "translator.offlineDownload.loading": "Download vorbereiten",
+        "translator.offlineDownload.confirm.title": "Sprachen offline laden?",
+        "translator.offlineDownload.confirm.message":
+            "%@ und %@ werden für Offline-Übersetzungen vorbereitet. iOS kann vor dem Download noch einmal nachfragen.",
+        "translator.offlineDownload.confirm.action": "Vorbereiten",
+        "translator.offlineDownload.success.title": "Offline bereit",
+        "translator.offlineDownload.error.title": "Download nicht möglich",
+        "translator.offlineDownload.alreadyInstalled":
+            "Dieses Sprachpaar ist bereits heruntergeladen und offline verfügbar.",
         "translator.offlineDownload.success":
             "Dieses Sprachpaar ist für die Offline-Nutzung vorbereitet.",
+        "translator.offlineDownload.unsupported":
+            "Dieses Sprachpaar wird für Offline-Übersetzungen auf diesem Gerät nicht unterstützt.",
         "translator.offlineDownload.error":
             "Offline-Download konnte nicht gestartet werden.",
         "translator.outputTitle": "Ergebnis",
@@ -160,8 +170,19 @@
         "translator.buttonHintSameLanguage": "Choose two different languages.",
         "translator.offlineDownload.button": "Download languages offline",
         "translator.offlineDownload.loading": "Preparing download",
+        "translator.offlineDownload.confirm.title":
+            "Download languages offline?",
+        "translator.offlineDownload.confirm.message":
+            "%@ and %@ will be prepared for offline translation. iOS may ask again before downloading.",
+        "translator.offlineDownload.confirm.action": "Prepare",
+        "translator.offlineDownload.success.title": "Ready offline",
+        "translator.offlineDownload.error.title": "Download unavailable",
+        "translator.offlineDownload.alreadyInstalled":
+            "This language pair is already downloaded and available offline.",
         "translator.offlineDownload.success":
             "This language pair is prepared for offline use.",
+        "translator.offlineDownload.unsupported":
+            "This language pair isn't supported for offline translation on this device.",
         "translator.offlineDownload.error":
             "Offline download could not be started.",
         "translator.outputTitle": "Result",

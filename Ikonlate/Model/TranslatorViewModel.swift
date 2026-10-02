@@ -10,6 +10,16 @@ import Foundation
 import Observation
 import Translation
 
+enum OfflineLanguageAlert: Identifiable {
+    case confirmation
+    case alreadyInstalled
+    case success
+    case unsupported
+    case failure
+
+    var id: Self { self }
+}
+
 @MainActor
 @Observable
 final class TranslatorViewModel {
@@ -25,7 +35,7 @@ final class TranslatorViewModel {
     var isPreparingLanguages = false
     var isTakingLongToPrepareLanguages = false
     var isPreparingOfflineLanguages = false
-    var offlineLanguageMessage: String?
+    var offlineLanguageAlert: OfflineLanguageAlert?
     var errorMessage: String?
     var historyItems: [TranslationRecord]
     var speechMessageKey: String?
@@ -103,7 +113,7 @@ final class TranslatorViewModel {
         }
 
         errorMessage = nil
-        offlineLanguageMessage = nil
+        offlineLanguageAlert = nil
 
         liveTranslationTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: 650_000_000)
@@ -143,24 +153,65 @@ final class TranslatorViewModel {
         }
     }
 
-    func prepareSelectedLanguagesForOffline() {
+    func requestOfflineLanguageConfirmation() {
+        guard canPrepareOfflineLanguages, !isPreparingOfflineLanguages else {
+            return
+        }
+        offlineLanguageAlert = .confirmation
+    }
+
+    func prepareSelectedLanguagesForOffline() async {
 
         guard canPrepareOfflineLanguages else { return }
 
-        offlineLanguageMessage = nil
+        let sourceLanguage = selectedSourceLanguage.language
+        let targetLanguage = selectedTargetLanguage.language
+
+        offlineLanguageAlert = nil
         isPreparingOfflineLanguages = true
 
+        let availability = LanguageAvailability(preferredStrategy: .lowLatency)
+        let status = await availability.status(
+            from: sourceLanguage,
+            to: targetLanguage
+        )
+
+        guard sourceLanguage == selectedSourceLanguage.language,
+            targetLanguage == selectedTargetLanguage.language
+        else {
+            isPreparingOfflineLanguages = false
+            return
+        }
+
+        switch status {
+        case .installed:
+            isPreparingOfflineLanguages = false
+            offlineLanguageAlert = .alreadyInstalled
+            return
+        case .unsupported:
+            isPreparingOfflineLanguages = false
+            offlineLanguageAlert = .unsupported
+            return
+        case .supported:
+            break
+        @unknown default:
+            isPreparingOfflineLanguages = false
+            offlineLanguageAlert = .failure
+            return
+        }
+
         let newConfiguration = TranslationSession.Configuration(
-            source: selectedSourceLanguage.language,
-            target: selectedTargetLanguage.language,
+            source: sourceLanguage,
+            target: targetLanguage,
             preferredStrategy: .lowLatency
         )
 
         if downloadConfiguration == nil {
             downloadConfiguration = newConfiguration
+        } else if downloadConfiguration == newConfiguration {
+            downloadConfiguration?.invalidate()
         } else {
             downloadConfiguration = newConfiguration
-            downloadConfiguration?.invalidate()
         }
     }
 
@@ -343,17 +394,15 @@ final class TranslatorViewModel {
 
     func prepareOfflineLanguages(
 
-        using session: TranslationSession,
-        successMessage: String,
-        errorMessage: String
+        using session: TranslationSession
     ) async {
         do {
             try await session.prepareTranslation()
             isPreparingOfflineLanguages = false
-            offlineLanguageMessage = successMessage
+            offlineLanguageAlert = await session.isReady ? .success : .failure
         } catch {
             isPreparingOfflineLanguages = false
-            offlineLanguageMessage = errorMessage
+            offlineLanguageAlert = .failure
         }
     }
 
@@ -375,12 +424,7 @@ final class TranslatorViewModel {
             preferredStrategy: .highFidelity
         )
         let languages = await availability.supportedLanguages
-        let options =
-            languages
-            .map(LanguageOption.init(language:))
-            .sorted {
-                $0.name.localizedStandardCompare($1.name) == .orderedAscending
-            }
+        let options = LanguageOption.uniqueOptions(from: languages)
 
         guard !options.isEmpty else { return }
 
@@ -534,6 +578,33 @@ struct LanguageOption: Identifiable, Hashable {
         name = localizedName.capitalized
         symbolName = Self.symbolName(for: localeIdentifier)
         self.language = language
+    }
+
+    static func uniqueOptions(
+        from languages: [Locale.Language]
+    ) -> [LanguageOption] {
+        var optionsByLanguageCode: [String: LanguageOption] = [:]
+
+        for language in languages {
+            let option = LanguageOption(language: language)
+            let languageCode =
+                language.languageCode?.identifier ?? option.id
+
+            if let existingOption = optionsByLanguageCode[languageCode] {
+                // Prefer a generic entry like "en" over a regional variant.
+                if option.id == languageCode,
+                    existingOption.id != languageCode
+                {
+                    optionsByLanguageCode[languageCode] = option
+                }
+            } else {
+                optionsByLanguageCode[languageCode] = option
+            }
+        }
+
+        return optionsByLanguageCode.values.sorted {
+            $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
     }
 
     private static func symbolName(for identifier: String) -> String {

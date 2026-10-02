@@ -122,6 +122,17 @@ struct TranslatorHistoryStoreTests {
 @Suite("App settings")
 struct AppSettingsViewModelTests {
 
+    @Test("A new installation follows the system language")
+    func systemLanguageDefault() throws {
+        let defaults = try makeDefaults()
+        defer { clear(defaults) }
+
+        let settings = AppSettingsViewModel(defaults: defaults)
+
+        #expect(settings.languageCode == "system")
+        #expect(["de", "en"].contains(settings.resolvedLanguageCode))
+    }
+
     @Test("Settings persist when the model is recreated")
     func persistence() throws {
         let defaults = try makeDefaults()
@@ -182,6 +193,26 @@ struct AppSettingsViewModelTests {
 @Suite("Translator behavior")
 @MainActor
 struct TranslatorViewModelTests {
+
+    @Test("Regional language variants appear only once")
+    func uniqueLanguageOptions() {
+        let languages = [
+            Locale.Language(identifier: "en-US"),
+            Locale.Language(identifier: "en-GB"),
+            Locale.Language(identifier: "en"),
+            Locale.Language(identifier: "de-DE"),
+            Locale.Language(identifier: "de-AT"),
+        ]
+
+        let options = LanguageOption.uniqueOptions(from: languages)
+        let languageCodes = options.compactMap {
+            $0.language.languageCode?.identifier
+        }
+
+        #expect(options.count == 2)
+        #expect(Set(languageCodes) == Set(["de", "en"]))
+        #expect(options.first(where: { $0.id == "en" }) != nil)
+    }
 
     @Test("Translation requires text and two different languages")
     func translationRequirements() {

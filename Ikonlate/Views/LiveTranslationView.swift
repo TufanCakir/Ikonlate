@@ -51,13 +51,7 @@ struct LiveTranslationView: View {
             )
         }
         .translationTask(viewModel.downloadConfiguration) { session in
-            await viewModel.prepareOfflineLanguages(
-                using: session,
-                successMessage: settings.text(
-                    "translator.offlineDownload.success"
-                ),
-                errorMessage: settings.text("translator.offlineDownload.error")
-            )
+            await viewModel.prepareOfflineLanguages(using: session)
         }
         .task {
             viewModel.setHistoryLimit(settings.historyLimit)
