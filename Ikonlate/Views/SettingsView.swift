@@ -34,14 +34,6 @@ struct SettingsView: View {
                                 hint: settings.text("settings.appLanguageHint")
                             )
 
-                            SettingsThemeCard(
-                                selection: $settings.themeMode,
-                                options: settings.themeOptions,
-                                languageCode: settings.resolvedLanguageCode,
-                                title: settings.text("settings.section.theme"),
-                                hint: settings.text("settings.appearanceHint")
-                            )
-
                             SettingsToggleCard(
                                 title: settings.text(
                                     "settings.section.accessibility"
@@ -225,32 +217,6 @@ private struct SettingsLanguageCard: View {
 
     private var selectedLanguageName: String {
         languages.first(where: { $0.id == selection })?.name ?? selection
-    }
-}
-
-private struct SettingsThemeCard: View {
-
-    @Binding var selection: ThemeMode
-
-    let options: [ThemeOption]
-    let languageCode: String
-    let title: String
-    let hint: String
-
-    var body: some View {
-        SettingsCard(title: title, symbolName: "paintpalette") {
-            Picker(title, selection: $selection) {
-                ForEach(options) { option in
-                    Label(
-                        option.name(languageCode: languageCode),
-                        systemImage: option.symbolName
-                    )
-                    .tag(ThemeMode(rawValue: option.id) ?? .system)
-                }
-            }
-            .pickerStyle(.segmented)
-            .accessibilityHint(hint)
-        }
     }
 }
 

@@ -140,7 +140,6 @@ struct AppSettingsViewModelTests {
         let settings = AppSettingsViewModel(defaults: defaults)
 
         settings.languageCode = "de"
-        settings.themeMode = .dark
         settings.reduceAnimations = true
         settings.highContrast = true
         settings.largeControls = true
@@ -150,7 +149,6 @@ struct AppSettingsViewModelTests {
 
         let restoredSettings = AppSettingsViewModel(defaults: defaults)
         #expect(restoredSettings.languageCode == "de")
-        #expect(restoredSettings.themeMode == .dark)
         #expect(restoredSettings.reduceAnimations)
         #expect(restoredSettings.highContrast)
         #expect(restoredSettings.largeControls)

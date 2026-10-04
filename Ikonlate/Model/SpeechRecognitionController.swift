@@ -122,13 +122,18 @@ final class SpeechRecognitionController {
     }
 
     private func configureAudioSession() async throws {
-
         let audioSession = AVAudioSession.sharedInstance()
+
         try audioSession.setCategory(
-            .record,
-            mode: .measurement,
-            options: [.duckOthers]
+            .playAndRecord,
+            mode: .voiceChat,
+            options: [
+                .allowBluetoothHFP,
+                .defaultToSpeaker,
+                .duckOthers,
+            ]
         )
+
         try await audioSession.activate()
     }
 

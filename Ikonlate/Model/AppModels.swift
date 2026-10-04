@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 struct AppInfo {
 
@@ -32,50 +31,24 @@ struct AppInfo {
     }
 }
 
-struct AppCopyStore {
-
-    private let values: [String: [String: String]]
-
-    init(bundle: Bundle = .main) {
-
-        values = Self.load("AppCopy", from: bundle) ?? [:]
-    }
+struct AppLocalization {
 
     func text(_ key: String, languageCode: String) -> String {
-
-        values[languageCode]?[key] ?? values["en"]?[key] ?? key
+        let resource = LocalizedStringResource(
+            String.LocalizationValue(key),
+            locale: Locale(identifier: languageCode)
+        )
+        return String(localized: resource)
     }
 
     func formatted(_ key: String, languageCode: String, arguments: [CVarArg])
         -> String
     {
         NSString(
-
             format: text(key, languageCode: languageCode),
-            locale: Locale.current,
+            locale: Locale(identifier: languageCode),
             arguments: getVaList(arguments)
         ) as String
-    }
-
-    private static func load(_ resourceName: String, from bundle: Bundle)
-        -> [String: [String: String]]?
-    {
-        guard
-            let url = bundle.url(
-                forResource: resourceName,
-                withExtension: "json"
-            )
-        else { return nil }
-
-        do {
-            let data = try Data(contentsOf: url)
-            return try JSONDecoder().decode(
-                [String: [String: String]].self,
-                from: data
-            )
-        } catch {
-            return nil
-        }
     }
 }
 
@@ -103,109 +76,22 @@ struct AppLanguageOption: Identifiable, Hashable {
     static let all = [system, german, english]
 }
 
-struct ThemeOption: Identifiable, Hashable, Decodable {
-
-    let id: String
-    let symbolName: String
-    let names: [String: String]
-
-    func name(languageCode: String) -> String {
-        names[languageCode] ?? names["en"] ?? id.capitalized
-    }
-
-    static let fallbackOptions = [
-        ThemeOption(
-            id: ThemeMode.system.rawValue,
-            symbolName: "circle.lefthalf.filled",
-            names: ["de": "System", "en": "System"]
-        ),
-        ThemeOption(
-            id: ThemeMode.light.rawValue,
-            symbolName: "sun.max.fill",
-            names: ["de": "Hell", "en": "Light"]
-        ),
-        ThemeOption(
-            id: ThemeMode.dark.rawValue,
-            symbolName: "moon.fill",
-            names: ["de": "Dunkel", "en": "Dark"]
-        ),
-    ]
-
-    static func load(bundle: Bundle = .main) -> [ThemeOption] {
-
-        guard
-            let url = bundle.url(
-                forResource: "ThemeOptions",
-                withExtension: "json"
-            )
-        else {
-            return fallbackOptions
-        }
-
-        do {
-            let data = try Data(contentsOf: url)
-            return try JSONDecoder().decode([ThemeOption].self, from: data)
-        } catch {
-            return fallbackOptions
-        }
-    }
-}
-
-enum ThemeMode: String, CaseIterable {
-
-    case system
-    case light
-    case dark
-
-    var colorScheme: ColorScheme? {
-
-        switch self {
-        case .system:
-            nil
-        case .light:
-            .light
-        case .dark:
-            .dark
-        }
-    }
-}
-
-struct DefaultLanguageRecord: Decodable {
+struct DefaultLanguageRecord {
 
     let id: String
     let name: String
     let symbolName: String
 
-    static func load(bundle: Bundle = .main) -> [DefaultLanguageRecord] {
-
-        guard
-            let url = bundle.url(
-                forResource: "DefaultLanguages",
-                withExtension: "json"
-            )
-        else {
-            return [
-                DefaultLanguageRecord(
-                    id: "de",
-                    name: "Deutsch",
-                    symbolName: "globe.europe.africa.fill"
-                ),
-                DefaultLanguageRecord(
-                    id: "en",
-                    name: "English",
-                    symbolName: "globe.americas.fill"
-                ),
-            ]
-        }
-
-        do {
-            let data = try Data(contentsOf: url)
-            return try JSONDecoder().decode(
-                [DefaultLanguageRecord].self,
-                from: data
-            )
-        } catch {
-            return []
-        }
-    }
+    static let all = [
+        DefaultLanguageRecord(
+            id: "de",
+            name: "Deutsch",
+            symbolName: "globe.europe.africa.fill"
+        ),
+        DefaultLanguageRecord(
+            id: "en",
+            name: "English",
+            symbolName: "globe.americas.fill"
+        ),
+    ]
 }

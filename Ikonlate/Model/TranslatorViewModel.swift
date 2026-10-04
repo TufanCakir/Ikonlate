@@ -525,7 +525,7 @@ struct LanguageOption: Identifiable, Hashable {
     let symbolName: String
     let language: Locale.Language
 
-    static let defaultOptions = DefaultLanguageRecord.load().map { record in
+    static let defaultOptions = DefaultLanguageRecord.all.map { record in
         LanguageOption(
             id: record.id,
             name: record.name,

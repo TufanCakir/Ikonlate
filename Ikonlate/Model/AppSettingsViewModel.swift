@@ -16,10 +16,6 @@ final class AppSettingsViewModel {
         didSet { defaults.set(languageCode, forKey: Keys.languageCode) }
     }
 
-    var themeMode: ThemeMode {
-        didSet { defaults.set(themeMode.rawValue, forKey: Keys.themeMode) }
-    }
-
     var reduceAnimations: Bool {
         didSet { defaults.set(reduceAnimations, forKey: Keys.reduceAnimations) }
     }
@@ -49,8 +45,7 @@ final class AppSettingsViewModel {
         }
     }
 
-    let copy = AppCopyStore()
-    let themeOptions = ThemeOption.load()
+    let localization = AppLocalization()
     let appLanguages = AppLanguageOption.all
     let appInfo = AppInfo.current()
 
@@ -60,9 +55,6 @@ final class AppSettingsViewModel {
         self.defaults = defaults
         languageCode =
             defaults.string(forKey: Keys.languageCode) ?? "system"
-        themeMode =
-            ThemeMode(rawValue: defaults.string(forKey: Keys.themeMode) ?? "")
-            ?? .system
         reduceAnimations = defaults.bool(forKey: Keys.reduceAnimations)
         highContrast = defaults.bool(forKey: Keys.highContrast)
         largeControls = defaults.bool(forKey: Keys.largeControls)
@@ -77,10 +69,6 @@ final class AppSettingsViewModel {
         if !["system", "de", "en"].contains(languageCode) {
             languageCode = "en"
         }
-    }
-
-    var preferredColorScheme: ColorScheme? {
-        themeMode.colorScheme
     }
 
     var colorTint: Color {
@@ -98,11 +86,11 @@ final class AppSettingsViewModel {
     }
 
     func text(_ key: String) -> String {
-        copy.text(key, languageCode: resolvedLanguageCode)
+        localization.text(key, languageCode: resolvedLanguageCode)
     }
 
     func formatted(_ key: String, _ arguments: CVarArg...) -> String {
-        copy.formatted(
+        localization.formatted(
             key,
             languageCode: resolvedLanguageCode,
             arguments: arguments
@@ -113,7 +101,6 @@ final class AppSettingsViewModel {
 private enum Keys {
 
     static let languageCode = "appLanguageCode"
-    static let themeMode = "appThemeMode"
     static let reduceAnimations = "accessibilityReduceAnimations"
     static let highContrast = "accessibilityHighContrast"
     static let largeControls = "accessibilityLargeControls"

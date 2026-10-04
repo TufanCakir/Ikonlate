@@ -64,8 +64,6 @@ struct GlassmorphismBackground: View {
 
     @State private var animate = false
 
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
 
         ZStack {
@@ -76,9 +74,9 @@ struct GlassmorphismBackground: View {
             LinearGradient(
 
                 colors: [
-                    .white.opacity(colorScheme == .dark ? 0.06 : 0.28),
+                    .white.opacity(0.18),
                     .clear,
-                    .black.opacity(colorScheme == .dark ? 0.26 : 0.06),
+                    .black.opacity(0.14),
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
