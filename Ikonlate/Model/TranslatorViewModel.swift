@@ -104,7 +104,9 @@ final class TranslatorViewModel {
         sourceText = trimmedSearchText
     }
 
-    func scheduleLiveTranslation() {
+    func scheduleLiveTranslation(
+        preferredStrategy: TranslationSession.Strategy = .highFidelity
+    ) {
         liveTranslationTask?.cancel()
 
         guard canTranslate else {
@@ -116,15 +118,17 @@ final class TranslatorViewModel {
         offlineLanguageAlert = nil
 
         liveTranslationTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 650_000_000)
+            try? await Task.sleep(for: .milliseconds(650))
 
             guard !Task.isCancelled else { return }
 
-            self?.triggerTranslation()
+            self?.triggerTranslation(preferredStrategy: preferredStrategy)
         }
     }
 
-    func triggerTranslation() {
+    func triggerTranslation(
+        preferredStrategy: TranslationSession.Strategy = .highFidelity
+    ) {
 
         guard canTranslate else { return }
 
@@ -141,7 +145,7 @@ final class TranslatorViewModel {
         let newConfiguration = TranslationSession.Configuration(
             source: selectedSourceLanguage.language,
             target: selectedTargetLanguage.language,
-            preferredStrategy: .highFidelity
+            preferredStrategy: preferredStrategy
         )
 
         if configuration == nil {
@@ -372,7 +376,7 @@ final class TranslatorViewModel {
                     guard let self else { return }
 
                     sourceText = recognizedText
-                    scheduleLiveTranslation()
+                    scheduleLiveTranslation(preferredStrategy: .lowLatency)
                 },
                 onAudioLevelChange: { [weak self] level in
                     self?.audioLevel = level

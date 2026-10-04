@@ -34,10 +34,15 @@ struct AppInfo {
 struct AppLocalization {
 
     func text(_ key: String, languageCode: String) -> String {
-        let resource = LocalizedStringResource(
-            String.LocalizationValue(key),
-            locale: Locale(identifier: languageCode)
-        )
+        guard
+            var resource = LocalizationCatalog.resources.first(where: {
+                $0.key == key
+            })
+        else {
+            return key
+        }
+
+        resource.locale = Locale(identifier: languageCode)
         return String(localized: resource)
     }
 

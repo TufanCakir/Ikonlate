@@ -16,6 +16,7 @@ final class SpeechRecognitionController {
     private var recognitionTask: SFSpeechRecognitionTask?
     private var speechRecognizer: SFSpeechRecognizer?
     private var hasInstalledAudioTap = false
+    private var recognitionGeneration = 0
 
     var isRunning: Bool {
 
@@ -59,11 +60,14 @@ final class SpeechRecognitionController {
         }
 
         speechRecognizer = recognizer
+        recognitionGeneration += 1
+        let generation = recognitionGeneration
 
         do {
             try await configureAudioSession()
             try startAudioEngine(
                 recognizer: recognizer,
+                generation: generation,
                 onTextChange: onTextChange,
                 onAudioLevelChange: onAudioLevelChange,
                 onError: onError
@@ -84,6 +88,7 @@ final class SpeechRecognitionController {
     }
 
     private func stop(deactivateAudioSession: Bool) {
+        recognitionGeneration += 1
 
         if audioEngine.isRunning {
             audioEngine.stop()
@@ -140,6 +145,7 @@ final class SpeechRecognitionController {
     private func startAudioEngine(
 
         recognizer: SFSpeechRecognizer,
+        generation: Int,
         onTextChange: @escaping @MainActor (String) -> Void,
         onAudioLevelChange: @escaping @MainActor (Float) -> Void,
         onError: @escaping @MainActor (String) -> Void
@@ -175,6 +181,10 @@ final class SpeechRecognitionController {
             [weak self]
             result,
             error in
+            guard let self, generation == self.recognitionGeneration else {
+                return
+            }
+
             if let result {
                 let text = result.bestTranscription.formattedString
                 Task { @MainActor in
@@ -183,7 +193,7 @@ final class SpeechRecognitionController {
             }
 
             if error != nil {
-                self?.stop()
+                self.stop()
                 Task { @MainActor in
                     onError("speech.error.recognition")
                 }

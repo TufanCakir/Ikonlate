@@ -257,6 +257,11 @@ struct LiveTranslationView: View {
             viewModel.selectedTargetLanguage
         } set: { newValue in
             viewModel.selectedTargetLanguage = newValue
+            if viewModel.isListening {
+                viewModel.scheduleLiveTranslation(
+                    preferredStrategy: .lowLatency
+                )
+            }
         }
     }
 }
